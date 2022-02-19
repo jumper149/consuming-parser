@@ -1,14 +1,17 @@
 {-# LANGUAGE GADTSyntax #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Parser where
 
 import Control.Alternative
 import qualified Control.Monad.Error.Class as C
-import qualified Control.Monad.Trans.State as T
+import Control.Monad.Trans.Class
+import Control.Monad.Trans.Compose
+import Control.Monad.Trans.Control
 import Control.Monad.Trans.Elevator
+import qualified Control.Monad.Trans.State as T
 import Data.Failable
-import qualified Data.Functor.Identity
 import Control.Monad.Trans.Failable
 import GHC.Generics
 import qualified Prelude
@@ -25,9 +28,34 @@ instance Prelude.Semigroup (Error e) where
 
 -- * Parser
 
-newtype Parser t e a = Parser { unParser :: T.StateT [t] (FailableT (Error e) Data.Functor.Identity.Identity) a }
+newtype ParserT t e m a = ParserT { unParserT :: T.StateT [t] (FailableT (Error e) m) a }
   deriving newtype (Prelude.Functor, Prelude.Applicative, Prelude.Monad)
-  deriving (Alternative, C.MonadError (Error e)) via Elevator (T.StateT [t]) (FailableT (Error e) Data.Functor.Identity.Identity)
+  deriving (Alternative, C.MonadError (Error e)) via Elevator (T.StateT [t]) (FailableT (Error e) m)
+  deriving (MonadTrans, MonadTransControl) via (ComposeT (T.StateT [t]) (FailableT (Error e)))
 
-parse :: Parser t e a -> [t] -> Failable (Error e) (a, [t])
-parse parser tokens = Data.Functor.Identity.runIdentity (runFailableT (T.runStateT (unParser parser) tokens))
+parse :: ParserT t e m a -> [t] -> m (Failable (Error e) (a, [t]))
+parse parser tokens = runFailableT (T.runStateT (unParserT parser) tokens)
+
+combine :: Prelude.Monad m => ParserT a e m [b] -> ParserT b e m c -> ParserT a e m c
+combine x y = ParserT Prelude.$ T.StateT Prelude.$ \ as -> do
+  (bs, as') <- restoreT (parse x as)
+  (c, bs') <- restoreT (parse y bs)
+  case bs' of
+    [] -> Prelude.pure (c, as')
+    _rest -> Prelude.undefined
+
+consume :: Prelude.Monad m => ParserT t e m t
+consume = do
+  tokens <- ParserT T.get
+  case tokens of
+    [] -> Prelude.undefined
+    t:ts -> do
+      ParserT (T.put ts)
+      Prelude.pure t
+
+end :: Prelude.Monad m => ParserT t e m ()
+end = do
+  tokens <- ParserT T.get
+  case tokens of
+    [] -> Prelude.pure ()
+    _rest -> Prelude.undefined
