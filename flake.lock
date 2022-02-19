@@ -1,5 +1,26 @@
 {
   "nodes": {
+    "deriving-trans": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1644010895,
+        "narHash": "sha256-t9Ft3HsEW5pockMPblAs2wfiJWc8TfY0QTuycCc1qW4=",
+        "owner": "jumper149",
+        "repo": "deriving-trans",
+        "rev": "41aecaaf806c25f10f2f17466a13b108ba5af538",
+        "type": "github"
+      },
+      "original": {
+        "owner": "jumper149",
+        "ref": "v0.3.0.0",
+        "repo": "deriving-trans",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1643087856,
@@ -18,6 +39,7 @@
     },
     "root": {
       "inputs": {
+        "deriving-trans": "deriving-trans",
         "nixpkgs": "nixpkgs"
       }
     }
