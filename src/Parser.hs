@@ -31,7 +31,13 @@ instance Prelude.Semigroup (Error e) where
 
 -- * Parser
 
-newtype ParserT (c :: Prelude.Bool) t e m a = ParserT { unParserT :: T.StateT [t] (FailableT (Error e) m) a }
+type ParserT :: Prelude.Bool -- ^ c
+             -> * -- ^ t
+             -> * -- ^ e
+             -> (* -> *) -- ^ m
+             -> * -- ^ a
+             -> *
+newtype ParserT c t e m a = ParserT { unParserT :: T.StateT [t] (FailableT (Error e) m) a }
   --deriving (MonadTrans, MonadTransControl) via (ComposeT (T.StateT [t]) (FailableT (Error e)))
 
 parse :: ParserT c t e m a -> [t] -> m (Failable (Error e) (a, [t]))
