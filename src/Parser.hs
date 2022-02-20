@@ -20,6 +20,8 @@ import qualified Prelude
 
 data Error :: * -> * where
     ErrorCustom :: e -> Error e
+    ErrorInputEmpty :: Error e
+    ErrorInputLeft :: Error e
     ErrorAppend :: Error e -> Error e -> Error e
   deriving stock (Prelude.Eq, Generic, Prelude.Ord, Prelude.Read, Prelude.Show)
 
@@ -42,13 +44,13 @@ combine x y = ParserT Prelude.$ T.StateT Prelude.$ \ as -> do
   (c, bs') <- restoreT (parse y bs)
   case bs' of
     [] -> Prelude.pure (c, as')
-    _rest -> Prelude.undefined
+    _rest -> C.throwError ErrorInputLeft
 
 consume :: Prelude.Monad m => ParserT t e m t
 consume = do
   tokens <- ParserT T.get
   case tokens of
-    [] -> Prelude.undefined
+    [] -> C.throwError ErrorInputEmpty
     t:ts -> do
       ParserT (T.put ts)
       Prelude.pure t
@@ -58,4 +60,4 @@ end = do
   tokens <- ParserT T.get
   case tokens of
     [] -> Prelude.pure ()
-    _rest -> Prelude.undefined
+    _rest -> C.throwError ErrorInputLeft
