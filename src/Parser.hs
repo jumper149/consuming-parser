@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTSyntax #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -9,6 +8,9 @@ module Parser where
 
 import qualified Control.Alternative
 import qualified Control.Monad.Error.Class as C
+import Control.Monad.Trans.Class
+import Control.Monad.Trans.Compose
+import Control.Monad.Trans.Control
 import Control.Monad.Trans.Elevator
 import qualified Control.Monad.Trans.State as T
 import Data.Failable
@@ -38,7 +40,7 @@ type ParserT :: Prelude.Bool -- ^ c
              -> * -- ^ a
              -> *
 newtype ParserT c t e m a = ParserT { unParserT :: T.StateT [t] (FailableT (Error e) m) a }
-  --deriving (MonadTrans, MonadTransControl) via (ComposeT (T.StateT [t]) (FailableT (Error e)))
+  deriving (MonadTrans, MonadTransControl) via (ComposeT (T.StateT [t]) (FailableT (Error e)))
 
 parse :: ParserT c t e m a -> [t] -> m (Failable (Error e) (a, [t]))
 parse parser tokens = runFailableT (T.runStateT (unParserT parser) tokens)
