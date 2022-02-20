@@ -19,6 +19,7 @@ library
     Control.Monad.Trans.Failable
     Data.Failable
     Parser
+    Parser.Combinators
   --other-modules:
   build-depends:
     , base
