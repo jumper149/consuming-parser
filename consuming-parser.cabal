@@ -52,4 +52,6 @@ library
     StandaloneKindSignatures
     TypeApplications
     TypeFamilies
-  ghc-options: -Wall
+  ghc-options:
+    -Wall
+    -Wunused-packages
