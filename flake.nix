@@ -38,7 +38,6 @@
           hnix
           implicit-hie
           rnix-lsp
-          weeder
         ];
         packages = haskellPackages: [
           self.defaultPackage.x86_64-linux
