@@ -5,12 +5,13 @@ module Data.Failable where
 
 import Control.Alternative
 import qualified Control.Monad.Error.Class as C
+import Data.Kind
 import GHC.Generics
 import qualified Prelude
 
 -- * Failable
 
-data Failable :: * -> * -> * where
+data Failable :: Type -> Type -> Type where
     Failed :: e -> Failable e a
     Succeeding :: a -> Failable e a
   deriving stock (Prelude.Eq, Generic, Prelude.Ord, Prelude.Read, Prelude.Show)
@@ -32,10 +33,10 @@ instance Prelude.Monad (Failable e) where
 instance Prelude.Semigroup e => Alternative (Failable e) where
     x <|> y =
       case x of
-        val@ (Succeeding _) -> val
+        val@(Succeeding _) -> val
         Failed xErr ->
           case y of
-            val@ (Succeeding _) -> val
+            val@(Succeeding _) -> val
             Failed yErr -> Failed (xErr Prelude.<> yErr)
 
 instance C.MonadError e (Failable e) where
@@ -43,4 +44,4 @@ instance C.MonadError e (Failable e) where
     catchError e f =
       case e of
         Failed err -> f err
-        val@ (Succeeding _) -> val
+        val@(Succeeding _) -> val

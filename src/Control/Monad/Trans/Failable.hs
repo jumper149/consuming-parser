@@ -45,6 +45,6 @@ instance Prelude.Monad m => C.MonadError e (FailableT e m) where
         (runFailableT e Prelude.>>=
           (\case
             Failed err -> runFailableT (f err)
-            val@ (Succeeding _) -> Prelude.pure val
+            val@(Succeeding _) -> Prelude.pure val
           )
         )

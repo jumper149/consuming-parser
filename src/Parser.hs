@@ -14,6 +14,7 @@ import Control.Monad.Trans.Control
 import Control.Monad.Trans.Elevator
 import qualified Control.Monad.Trans.State as T
 import Data.Failable
+import Data.Kind
 import Data.Type.Bool
 import Control.Monad.Trans.Failable
 import GHC.Generics
@@ -21,7 +22,7 @@ import qualified Prelude
 
 -- * Error
 
-data Error :: * -> * where
+data Error :: Type -> Type where
     ErrorCustom :: e -> Error e
     ErrorInputEmpty :: Error e
     ErrorInputLeft :: Error e
@@ -34,11 +35,11 @@ instance Prelude.Semigroup (Error e) where
 -- * Parser
 
 type ParserT :: Prelude.Bool -- ^ c
-             -> * -- ^ t
-             -> * -- ^ e
-             -> (* -> *) -- ^ m
-             -> * -- ^ a
-             -> *
+             -> Type -- ^ t
+             -> Type -- ^ e
+             -> (Type -> Type) -- ^ m
+             -> Type -- ^ a
+             -> Type
 newtype ParserT c t e m a = ParserT { unParserT :: T.StateT [t] (FailableT (Error e) m) a }
   deriving (MonadTrans, MonadTransControl) via (ComposeT (T.StateT [t]) (FailableT (Error e)))
 
