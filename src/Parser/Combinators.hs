@@ -7,6 +7,9 @@ import qualified Data.List.NonEmpty
 import Parser
 import qualified Prelude
 
+void :: Prelude.Monad m => ParserT c t e m a -> ParserT c t e m ()
+void p = p >> pure ()
+
 optional :: Prelude.Monad m => ParserT 'Consuming t e m a -> ParserT 'Unknown t e m (Prelude.Maybe a)
 optional p = catch (Prelude.Just <$> p) (\ _ -> pure Prelude.Nothing)
 
