@@ -42,6 +42,7 @@ type ParserT :: Prelude.Bool -- ^ c
              -> Type
 newtype ParserT c t e m a = ParserT { unParserT :: T.StateT [t] (FailableT (Error e) m) a }
   deriving (MonadTrans, MonadTransControl) via (ComposeT (T.StateT [t]) (FailableT (Error e)))
+  deriving Prelude.Functor
 
 parse :: ParserT c t e m a -> [t] -> m (Failable (Error e) (a, [t]))
 parse parser tokens = runFailableT (T.runStateT (unParserT parser) tokens)
@@ -71,7 +72,7 @@ end = do
     _rest -> throw ErrorInputLeft
 
 map :: Prelude.Functor m => (a -> b) -> ParserT c t e m a -> ParserT c t e m b
-map f = ParserT Prelude.. Prelude.fmap f Prelude.. unParserT
+map = Prelude.fmap
 
 pure :: Prelude.Monad m => a -> ParserT 'Prelude.False t e m a
 pure = ParserT Prelude.. Prelude.pure
