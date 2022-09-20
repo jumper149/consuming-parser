@@ -4,8 +4,10 @@ module Control.Alternative where
 
 import Control.Monad.Trans.Control
 import Control.Monad.Trans.Elevator
+import Data.Kind
 import qualified Prelude
 
+type Alternative :: (Type -> Type) ->Constraint
 class Alternative m where
   (<|>) :: m a -> m a -> m a
 

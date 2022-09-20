@@ -11,6 +11,7 @@ import qualified Prelude
 
 -- * Failable
 
+type Failable :: Type -> Type -> Type -- TODO: This is redundant.
 data Failable :: Type -> Type -> Type where
   Failed :: e -> Failable e a
   Succeeding :: a -> Failable e a

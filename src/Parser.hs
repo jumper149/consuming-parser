@@ -22,26 +22,30 @@ import qualified Prelude
 
 -- * Consumption
 
+type Consumption :: Type -- TODO: This is redundant.
 data Consumption :: Type where
   Unknown :: Consumption
   Consuming :: Consumption
 
+type (&&) :: Consumption -> Consumption -> Consumption
 type family a && b where
-  'Unknown && x = 'Unknown
+  'Unknown && _ = 'Unknown
   'Consuming && x = x
-  x && 'Unknown = 'Unknown
+  _ && 'Unknown = 'Unknown
   x && 'Consuming = x
   x && x = x
 
+type (||) :: Consumption -> Consumption -> Consumption
 type family a || b where
   'Unknown || x = x
-  'Consuming || x = 'Consuming
+  'Consuming || _ = 'Consuming
   x || 'Unknown = x
-  x || 'Consuming = 'Consuming
+  _ || 'Consuming = 'Consuming
   x || x = x
 
 -- * Error
 
+type Error :: Type -> Type -- TODO: This is redundant.
 data Error :: Type -> Type where
   ErrorCustom :: e -> Error e
   ErrorInputEmpty :: Error e
@@ -68,6 +72,12 @@ newtype ParserT c t e m a = ParserT {unParserT :: T.StateT [t] (FailableT (Error
 parseT :: ParserT c t e m a -> [t] -> m (Failable (Error e) (a, [t]))
 parseT parser tokens = runFailableT (T.runStateT (unParserT parser) tokens)
 
+type Parser ::
+  Consumption -> -- c
+  Type -> -- t
+  Type -> -- e
+  Type -> -- a
+  Type
 type Parser c t e a = ParserT c t e Identity.Identity a
 
 parse :: Parser c t e a -> [t] -> Failable (Error e) (a, [t])
@@ -148,5 +158,5 @@ throw e = ParserT (descend (C.throwError e))
 catch :: Prelude.Monad m => ParserT c1 t e m a -> (Error e -> ParserT c2 t e m a) -> ParserT (c1 && c2) t e m a
 catch throwing catching = ParserT (descend (C.catchError (Ascend (unParserT throwing)) (Ascend Prelude.. unParserT Prelude.. catching)))
 
-forget :: Prelude.Monad m => ParserT c t e m a -> ParserT 'Unknown t e m a
+forget :: ParserT c t e m a -> ParserT 'Unknown t e m a
 forget (ParserT x) = ParserT x

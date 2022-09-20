@@ -10,8 +10,10 @@ import Control.Monad.Trans.Class
 import Control.Monad.Trans.Control
 import Data.Failable
 import qualified Data.Functor.Compose
+import Data.Kind
 import qualified Prelude
 
+type FailableT :: Type -> (Type -> Type) -> Type -> Type
 newtype FailableT e m a = FailableT {runFailableT :: m (Failable e a)}
 
 deriving via Data.Functor.Compose.Compose m (Failable e) instance Prelude.Functor m => Prelude.Functor (FailableT e m)

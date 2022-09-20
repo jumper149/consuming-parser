@@ -2,6 +2,7 @@
 
 module Parser.Example.Parens where
 
+import Data.Kind
 import qualified Data.List.NonEmpty as NonEmpty
 import qualified Data.Tree as Containers
 import qualified Parser as P
@@ -24,10 +25,11 @@ closingParser = P.do
     ')' -> P.pure ()
     _ -> P.throw $ P.ErrorCustom "No closing parens."
 
+type Tree :: Type
 data Tree
   = Node
   | Fingers (NonEmpty.NonEmpty Tree)
-  deriving (Show)
+  deriving stock (Show)
 
 nodeParser :: Monad m => P.ParserT 'P.Consuming Char String m Tree
 nodeParser =
@@ -56,5 +58,5 @@ fullParser = P.do
 drawTree :: Tree -> String
 drawTree tree = Containers.drawTree (convertTree tree)
  where
-  convertTree Node = Containers.Node "x" []
-  convertTree (Fingers (x NonEmpty.:| xs)) = Containers.Node "x" (convertTree <$> (x : xs))
+  convertTree Node = Containers.Node @String "x" []
+  convertTree (Fingers (x NonEmpty.:| xs)) = Containers.Node @String "x" (convertTree <$> (x : xs))

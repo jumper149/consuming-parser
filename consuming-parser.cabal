@@ -47,5 +47,10 @@ library
     NoPatternGuards
     NoStarIsType
   ghc-options:
-    -Wall
-    -Wunused-packages
+    -Weverything
+    -Wno-implicit-prelude
+    -Wno-missing-export-lists
+    -Wno-missing-import-lists
+    -Wno-missing-safe-haskell-mode
+    -Wno-prepositive-qualified-module
+    -Wno-unsafe
