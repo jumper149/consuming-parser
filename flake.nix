@@ -1,6 +1,4 @@
 {
-  description = "A parser with additional type safety by tracking guaranteed consumption";
-
   inputs = {
     nixpkgs = {
       type = "github";
