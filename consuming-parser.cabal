@@ -31,30 +31,21 @@ library
     , mtl
     , transformers
   hs-source-dirs: src
-  default-language: Haskell2010
+  default-language: GHC2021
   default-extensions:
-    BangPatterns
-    ConstraintKinds
     DataKinds
-    DeriveFoldable
-    DeriveFunctor
-    DeriveGeneric
-    DeriveTraversable
+    DeriveAnyClass
     DerivingStrategies
     DerivingVia
-    EmptyDataDeriving
-    FlexibleContexts
-    FlexibleInstances
+    ExplicitNamespaces
     FunctionalDependencies
-    GeneralizedNewtypeDeriving
-    MultiParamTypeClasses
-    NamedFieldPuns
+    LambdaCase
+    LexicalNegation
+    FunctionalDependencies
+    NumDecimals
     OverloadedStrings
-    RankNTypes
-    StandaloneDeriving
-    StandaloneKindSignatures
-    TypeApplications
-    TypeFamilies
+    NoPatternGuards
+    NoStarIsType
   ghc-options:
     -Wall
     -Wunused-packages
