@@ -139,3 +139,6 @@ throw e = ParserT (descend (C.throwError e))
 
 catch :: Prelude.Monad m => ParserT c1 t e m a -> (Error e -> ParserT c2 t e m a) -> ParserT (c1 && c2) t e m a
 catch throwing catching = ParserT (descend (C.catchError (Ascend (unParserT throwing)) (Ascend Prelude.. unParserT Prelude.. catching)))
+
+forget :: Prelude.Monad m => ParserT c t e m a -> ParserT 'Unknown t e m a
+forget (ParserT x) = ParserT x
