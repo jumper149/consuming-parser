@@ -18,6 +18,8 @@ import Data.Kind
 import Data.Type.Bool
 import Control.Monad.Trans.Failable
 import GHC.Generics
+
+import qualified Data.Functor
 import qualified Prelude
 
 -- * Error
@@ -74,7 +76,16 @@ end = do
     _rest -> throw ErrorInputLeft
 
 (<$>) :: Prelude.Functor m => (a -> b) -> ParserT c t e m a -> ParserT c t e m b
-(<$>) = Prelude.fmap
+(<$>) = (Data.Functor.<$>)
+
+(<&>) :: Prelude.Functor m => ParserT c t e m a -> (a -> b) -> ParserT c t e m b
+(<&>) = (Data.Functor.<&>)
+
+($>) :: Prelude.Functor m => ParserT c t e m a -> b -> ParserT c t e m b
+($>) = (Data.Functor.$>)
+
+(<$) :: Prelude.Functor m => a -> ParserT c t e m b -> ParserT c t e m a
+(<$) = (Data.Functor.<$)
 
 pure :: Prelude.Monad m => a -> ParserT 'Prelude.False t e m a
 pure = ParserT Prelude.. Prelude.pure
@@ -82,11 +93,26 @@ pure = ParserT Prelude.. Prelude.pure
 (<*>) :: Prelude.Monad m => ParserT c1 t e m (a -> b) -> ParserT c2 t e m a -> ParserT (c1 || c2) t e m b
 ParserT x <*> ParserT y = ParserT (x Prelude.<*> y)
 
+(<**>) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m (a -> b) -> ParserT (c2 || c1) t e m b
+(<**>) = Prelude.flip (<*>)
+
+(*>) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m b -> ParserT (c1 || c2) t e m b
+x *> y = (\ _a b -> b) <$> x <*> y
+
+(<*) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m b -> ParserT (c1 || c2) t e m a
+x <* y = (\ a _b -> a) <$> x <*> y
+
 (>>=) :: Prelude.Monad m => ParserT c1 t e m a -> (a -> ParserT c2 t e m b) -> ParserT (c1 || c2) t e m b
 x >>= f = ParserT (unParserT x Prelude.>>= unParserT Prelude.. f)
 
+(=<<) :: Prelude.Monad m => (a -> ParserT c1 t e m b) -> ParserT c2 t e m a -> ParserT (c2 || c1) t e m b
+(=<<) = Prelude.flip (>>=)
+
 (>>) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m b -> ParserT (c1 || c2) t e m b
 x >> y = x >>= Prelude.const y
+
+(<<) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m b -> ParserT (c2 || c1) t e m a
+(<<) = Prelude.flip (>>)
 
 (<|>) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m a -> ParserT (c1 && c2) t e m a
 ParserT x <|> ParserT y = ParserT (descend (Ascend x Control.Alternative.<|> Ascend y))
