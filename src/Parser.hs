@@ -63,10 +63,13 @@ type ParserT :: Consumption -- ^ c
              -> Type
 newtype ParserT c t e m a = ParserT { unParserT :: T.StateT [t] (FailableT (Error e) m) a }
 
+parseT :: ParserT c t e m a -> [t] -> m (Failable (Error e) (a, [t]))
+parseT parser tokens = runFailableT (T.runStateT (unParserT parser) tokens)
+
 type Parser c t e a = ParserT c t e Identity.Identity a
 
-parse :: ParserT c t e m a -> [t] -> m (Failable (Error e) (a, [t]))
-parse parser tokens = runFailableT (T.runStateT (unParserT parser) tokens)
+parse :: Parser c t e a -> [t] -> Failable (Error e) (a, [t])
+parse parser tokens = Identity.runIdentity (parseT parser tokens)
 
 --combine :: Prelude.Monad m => ParserT Consuming a e m [b] -> ParserT Consuming b e m c -> ParserT Consuming a e m c
 --combine x y = ParserT Prelude.$ T.StateT Prelude.$ \ as -> do
