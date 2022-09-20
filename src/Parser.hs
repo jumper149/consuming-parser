@@ -8,6 +8,7 @@ module Parser where
 
 import qualified Control.Alternative
 import qualified Control.Monad.Error.Class as C
+import qualified Control.Monad.Identity as Identity
 import qualified Control.Monad.Trans.Class as C
 import Control.Monad.Trans.Elevator
 import qualified Control.Monad.Trans.State as T
@@ -61,6 +62,8 @@ type ParserT :: Consumption -- ^ c
              -> Type -- ^ a
              -> Type
 newtype ParserT c t e m a = ParserT { unParserT :: T.StateT [t] (FailableT (Error e) m) a }
+
+type Parser c t e a = ParserT c t e Identity.Identity a
 
 parse :: ParserT c t e m a -> [t] -> m (Failable (Error e) (a, [t]))
 parse parser tokens = runFailableT (T.runStateT (unParserT parser) tokens)
