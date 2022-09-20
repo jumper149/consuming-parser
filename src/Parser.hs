@@ -29,18 +29,18 @@ data Consumption :: Type where
 
 type (&&) :: Consumption -> Consumption -> Consumption
 type family a && b where
-  'Unknown && _ = 'Unknown
-  'Consuming && x = x
-  _ && 'Unknown = 'Unknown
-  x && 'Consuming = x
+  Unknown && _ = Unknown
+  Consuming && x = x
+  _ && Unknown = Unknown
+  x && Consuming = x
   x && x = x
 
 type (||) :: Consumption -> Consumption -> Consumption
 type family a || b where
-  'Unknown || x = x
-  'Consuming || _ = 'Consuming
-  x || 'Unknown = x
-  _ || 'Consuming = 'Consuming
+  Unknown || x = x
+  Consuming || _ = Consuming
+  x || Unknown = x
+  _ || Consuming = Consuming
   x || x = x
 
 -- * Error
@@ -91,18 +91,18 @@ parse parser tokens = Identity.runIdentity (parseT parser tokens)
 --    [] -> Prelude.pure (c, as')
 --    _rest -> C.throwError ErrorInputLeft
 
-consume :: Prelude.Monad m => ParserT 'Consuming t e m t
+consume :: Prelude.Monad m => ParserT Consuming t e m t
 consume = do
-  tokens <- ParserT @'Consuming T.get
+  tokens <- ParserT @Consuming T.get
   case tokens of
     [] -> throw ErrorInputEmpty
     t : ts -> do
-      ParserT @'Unknown (T.put ts)
+      ParserT @Unknown (T.put ts)
       pure t
 
-end :: Prelude.Monad m => ParserT 'Unknown t e m ()
+end :: Prelude.Monad m => ParserT Unknown t e m ()
 end = do
-  tokens <- ParserT @'Unknown T.get
+  tokens <- ParserT @Unknown T.get
   case tokens of
     [] -> pure ()
     _rest -> throw ErrorInputLeft
@@ -122,7 +122,7 @@ x $> y = Prelude.const y <$> x
 (<$) :: Prelude.Functor m => a -> ParserT c t e m b -> ParserT c t e m a
 x <$ y = Prelude.const x <$> y
 
-pure :: Prelude.Monad m => a -> ParserT 'Unknown t e m a
+pure :: Prelude.Monad m => a -> ParserT Unknown t e m a
 pure = ParserT Prelude.. Prelude.pure
 
 (<*>) :: Prelude.Monad m => ParserT c1 t e m (a -> b) -> ParserT c2 t e m a -> ParserT (c1 || c2) t e m b
@@ -158,5 +158,5 @@ throw e = ParserT (descend (C.throwError e))
 catch :: Prelude.Monad m => ParserT c1 t e m a -> (Error e -> ParserT c2 t e m a) -> ParserT (c1 && c2) t e m a
 catch throwing catching = ParserT (descend (C.catchError (Ascend (unParserT throwing)) (Ascend Prelude.. unParserT Prelude.. catching)))
 
-forget :: ParserT c t e m a -> ParserT 'Unknown t e m a
+forget :: ParserT c t e m a -> ParserT Unknown t e m a
 forget (ParserT x) = ParserT x

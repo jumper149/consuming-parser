@@ -8,17 +8,17 @@ import Data.Tree qualified as Containers
 import Parser qualified as P
 import Parser.Combinators qualified as P
 
-throwOn :: Monad m => P.Error e -> P.ParserT 'P.Consuming t e m a -> P.ParserT 'P.Consuming t e m a
+throwOn :: Monad m => P.Error e -> P.ParserT P.Consuming t e m a -> P.ParserT P.Consuming t e m a
 throwOn e p = p P.<|> P.throw e
 
-openingParser :: Monad m => P.ParserT 'P.Consuming Char String m ()
+openingParser :: Monad m => P.ParserT P.Consuming Char String m ()
 openingParser = P.do
   x <- P.consume
   case x of
     '(' -> P.pure ()
     _ -> P.throw $ P.ErrorCustom "No opening parens."
 
-closingParser :: Monad m => P.ParserT 'P.Consuming Char String m ()
+closingParser :: Monad m => P.ParserT P.Consuming Char String m ()
 closingParser = P.do
   x <- P.consume
   case x of
@@ -31,14 +31,14 @@ data Tree
   | Fingers (NonEmpty.NonEmpty Tree)
   deriving stock (Show)
 
-nodeParser :: Monad m => P.ParserT 'P.Consuming Char String m Tree
+nodeParser :: Monad m => P.ParserT P.Consuming Char String m Tree
 nodeParser =
   throwOn (P.ErrorCustom "No node.") $ P.do
     openingParser
     closingParser
     P.pure Node
 
-fingersParser :: Monad m => P.ParserT 'P.Consuming Char String m Tree
+fingersParser :: Monad m => P.ParserT P.Consuming Char String m Tree
 fingersParser =
   throwOn (P.ErrorCustom "No fingers.") $ P.do
     openingParser
@@ -46,10 +46,10 @@ fingersParser =
     closingParser
     P.pure (Fingers insideResult)
 
-treeParser :: Monad m => P.ParserT 'P.Consuming Char String m Tree
+treeParser :: Monad m => P.ParserT P.Consuming Char String m Tree
 treeParser = throwOn (P.ErrorCustom "No tree.") (nodeParser P.<|> fingersParser)
 
-fullParser :: Monad m => P.ParserT 'P.Consuming Char String m Tree
+fullParser :: Monad m => P.ParserT P.Consuming Char String m Tree
 fullParser = P.do
   result <- treeParser
   P.end P.<|> P.throw (P.ErrorCustom "Additional input detected.")
