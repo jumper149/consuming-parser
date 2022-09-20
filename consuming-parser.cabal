@@ -20,6 +20,7 @@ library
     Data.Failable
     Parser
     Parser.Combinators
+    Parser.Misc
   other-modules:
     Parser.Example.Parens
   build-depends:
