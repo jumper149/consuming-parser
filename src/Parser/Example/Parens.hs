@@ -3,51 +3,11 @@
 module Parser.Example.Parens where
 
 import qualified Data.Tree as Containers
-import qualified Control.Monad.Trans.Class as T
-import qualified Control.Monad.Trans.State as T
 import qualified Data.List.NonEmpty as NonEmpty
 import Parser
 import Parser.Combinators
 import qualified Prelude
 import Data.String (fromString)
-
-data Nat = Z
-         | S Nat
-  deriving Prelude.Show
-
-data Err = ErrUnknownToken
-         | ErrUnmatchedClosingParens
-         | ErrUnmatchedOpeningParens
-  deriving Prelude.Show
-
-data Token = OpeningParens
-           | ClosingParens
-  deriving Prelude.Show
-parser :: ParserT 'Prelude.False Prelude.Char Err (T.State Nat) [Token]
-parser = do
-  result <- many tokenParser
-  count <- T.lift T.get
-  case count of
-    Z -> pure result
-    S _ -> throw (ErrorCustom ErrUnmatchedOpeningParens)
-
-tokenParser :: ParserT 'Prelude.True Prelude.Char Err (T.State Nat) Token
-tokenParser = do
-    x <- consume
-    case x of
-      '(' -> do
-          T.lift (T.modify S)
-          pure OpeningParens
-      ')' -> do
-          count <- T.lift T.get
-          case count of
-            Z -> throw (ErrorCustom ErrUnmatchedClosingParens)
-            S remainingCount -> do
-                T.lift (T.put remainingCount)
-                pure ClosingParens
-      _ -> throw (ErrorCustom ErrUnknownToken)
-
-----------------------------------------------------------------------------------------------------
 
 throwOn :: Prelude.Monad m => Error e -> ParserT 'Prelude.True t e m a -> ParserT 'Prelude.True t e m a
 throwOn e p = p <|> throw e
@@ -101,5 +61,3 @@ drawTree tree = Containers.drawTree (convertTree tree)
  where
   convertTree Node = Containers.Node "x" []
   convertTree (Fingers (x NonEmpty.:| xs)) = Containers.Node "x" (convertTree Prelude.<$> (x : xs))
-
-
