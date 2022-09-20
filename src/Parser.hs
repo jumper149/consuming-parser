@@ -17,7 +17,6 @@ import Control.Monad.Trans.State qualified as T
 import Data.Failable
 import Data.Kind
 import GHC.Generics
-
 import Prelude qualified
 
 -- * Consumption
