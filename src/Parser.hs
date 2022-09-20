@@ -91,7 +91,7 @@ x >> y = x >>= Prelude.const y
 (<|>) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m a -> ParserT (c1 && c2) t e m a
 ParserT x <|> ParserT y = ParserT (descend (Ascend x Control.Alternative.<|> Ascend y))
 
-throw :: Prelude.Monad m => Error e -> ParserT 'Prelude.False t e m a
+throw :: Prelude.Monad m => Error e -> ParserT c t e m a
 throw e = ParserT (descend (C.throwError e))
 
 catch :: Prelude.Monad m => ParserT c1 t e m a -> (Error e -> ParserT c2 t e m a) -> ParserT (c1 && c2) t e m a
