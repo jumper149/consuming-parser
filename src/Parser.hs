@@ -8,9 +8,7 @@ module Parser where
 
 import qualified Control.Alternative
 import qualified Control.Monad.Error.Class as C
-import Control.Monad.Trans.Class
-import Control.Monad.Trans.Compose
-import Control.Monad.Trans.Control
+import qualified Control.Monad.Trans.Class as C
 import Control.Monad.Trans.Elevator
 import qualified Control.Monad.Trans.State as T
 import Data.Failable
@@ -18,7 +16,6 @@ import Data.Kind
 import Control.Monad.Trans.Failable
 import GHC.Generics
 
-import qualified Data.Functor
 import qualified Prelude
 
 -- * Consumption
@@ -64,8 +61,6 @@ type ParserT :: Consumption -- ^ c
              -> Type -- ^ a
              -> Type
 newtype ParserT c t e m a = ParserT { unParserT :: T.StateT [t] (FailableT (Error e) m) a }
-  deriving (MonadTrans, MonadTransControl) via (ComposeT (T.StateT [t]) (FailableT (Error e)))
-  deriving Prelude.Functor
 
 parse :: ParserT c t e m a -> [t] -> m (Failable (Error e) (a, [t]))
 parse parser tokens = runFailableT (T.runStateT (unParserT parser) tokens)
@@ -94,17 +89,20 @@ end = do
     [] -> pure ()
     _rest -> throw ErrorInputLeft
 
+lift :: Prelude.Monad m => m a -> ParserT c t e m a
+lift x = ParserT (C.lift (C.lift x))
+
 (<$>) :: Prelude.Functor m => (a -> b) -> ParserT c t e m a -> ParserT c t e m b
-(<$>) = (Data.Functor.<$>)
+f <$> ParserT x = ParserT (f Prelude.<$> x)
 
 (<&>) :: Prelude.Functor m => ParserT c t e m a -> (a -> b) -> ParserT c t e m b
-(<&>) = (Data.Functor.<&>)
+(<&>) = Prelude.flip (<$>)
 
 ($>) :: Prelude.Functor m => ParserT c t e m a -> b -> ParserT c t e m b
-($>) = (Data.Functor.$>)
+x $> y = Prelude.const y <$> x
 
 (<$) :: Prelude.Functor m => a -> ParserT c t e m b -> ParserT c t e m a
-(<$) = (Data.Functor.<$)
+x <$ y = Prelude.const x <$> y
 
 pure :: Prelude.Monad m => a -> ParserT 'Unknown t e m a
 pure = ParserT Prelude.. Prelude.pure
