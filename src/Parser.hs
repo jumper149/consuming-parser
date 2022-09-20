@@ -34,6 +34,8 @@ instance Prelude.Semigroup (Error e) where
 
 -- * Parser
 
+-- | This parser backtracks on failure.
+-- When `c` is `True`, then this parser is guarenteed to consume input on success.
 type ParserT :: Prelude.Bool -- ^ c
              -> Type -- ^ t
              -> Type -- ^ e
