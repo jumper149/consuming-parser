@@ -1,7 +1,7 @@
 cabal-version:       3.0
 name:                consuming-parser
 version:             0.0.1.0
-synopsis:            A parser with additional type safety by tracking guaranteed consumption
+synopsis:            A monadic parser with additional type safety by tracking guaranteed consumption
 description:         TODO
 license:             BSD-3-Clause
 license-file:        LICENSE
