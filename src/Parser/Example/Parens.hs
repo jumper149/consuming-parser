@@ -1,63 +1,61 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE RebindableSyntax #-}
+{-# LANGUAGE QualifiedDo #-}
+
 module Parser.Example.Parens where
 
 import qualified Data.Tree as Containers
 import qualified Data.List.NonEmpty as NonEmpty
-import Parser
-import Parser.Combinators
-import qualified Prelude
-import Data.String (fromString)
+import qualified Parser as P
+import qualified Parser.Combinators as P
 
-throwOn :: Prelude.Monad m => Error e -> ParserT 'Prelude.True t e m a -> ParserT 'Prelude.True t e m a
-throwOn e p = p <|> throw e
+throwOn :: Monad m => P.Error e -> P.ParserT 'P.Consuming t e m a -> P.ParserT 'P.Consuming t e m a
+throwOn e p = p P.<|> P.throw e
 
-openingParser :: Prelude.Monad m => ParserT 'Prelude.True Prelude.Char Prelude.String m ()
-openingParser = do
-    x <- consume
+openingParser :: Monad m => P.ParserT 'P.Consuming Char String m ()
+openingParser = P.do
+    x <- P.consume
     case x of
-      '(' -> pure ()
-      _ -> throw (ErrorCustom "No opening parens.")
+      '(' -> P.pure ()
+      _ -> P.throw (P.ErrorCustom "No opening parens.")
 
-closingParser :: Prelude.Monad m => ParserT 'Prelude.True Prelude.Char Prelude.String m ()
-closingParser = do
-    x <- consume
+closingParser :: Monad m => P.ParserT 'P.Consuming Char String m ()
+closingParser = P.do
+    x <- P.consume
     case x of
-      ')' -> pure ()
-      _ -> throw (ErrorCustom "No closing parens.")
+      ')' -> P.pure ()
+      _ -> P.throw (P.ErrorCustom "No closing parens.")
 
 data Tree = Node
           | Fingers (NonEmpty.NonEmpty Tree)
-  deriving Prelude.Show
+  deriving Show
 
-nodeParser :: Prelude.Monad m => ParserT 'Prelude.True Prelude.Char Prelude.String m Tree
-nodeParser = throwOn (ErrorCustom "No node.")
-  (do
+nodeParser :: Monad m => P.ParserT 'P.Consuming Char String m Tree
+nodeParser = throwOn (P.ErrorCustom "No node.")
+  (P.do
     openingParser
     closingParser
-    pure Node
+    P.pure Node
   )
 
-fingersParser :: Prelude.Monad m => ParserT 'Prelude.True Prelude.Char Prelude.String m Tree
-fingersParser = throwOn (ErrorCustom "No fingers.")
-  (do
+fingersParser :: Monad m => P.ParserT 'P.Consuming Char String m Tree
+fingersParser = throwOn (P.ErrorCustom "No fingers.")
+  (P.do
     openingParser
-    insideResult <- some treeParser
+    insideResult <- P.some treeParser
     closingParser
-    pure (Fingers insideResult)
+    P.pure (Fingers insideResult)
   )
 
-treeParser :: Prelude.Monad m => ParserT 'Prelude.True Prelude.Char Prelude.String m Tree
-treeParser = throwOn (ErrorCustom "No tree.") (nodeParser <|> fingersParser)
+treeParser :: Monad m => P.ParserT 'P.Consuming Char String m Tree
+treeParser = throwOn (P.ErrorCustom "No tree.") (nodeParser P.<|> fingersParser)
 
-fullParser :: Prelude.Monad m => ParserT 'Prelude.True Prelude.Char Prelude.String m Tree
-fullParser = do
+fullParser :: Monad m => P.ParserT 'P.Consuming Char String m Tree
+fullParser = P.do
     result <- treeParser
-    end <|> throw (ErrorCustom "Additional input detected.")
-    pure result
+    P.end P.<|> P.throw (P.ErrorCustom "Additional input detected.")
+    P.pure result
 
-drawTree :: Tree -> Prelude.String
+drawTree :: Tree -> String
 drawTree tree = Containers.drawTree (convertTree tree)
  where
   convertTree Node = Containers.Node "x" []
-  convertTree (Fingers (x NonEmpty.:| xs)) = Containers.Node "x" (convertTree Prelude.<$> (x : xs))
+  convertTree (Fingers (x NonEmpty.:| xs)) = Containers.Node "x" (convertTree <$> (x : xs))

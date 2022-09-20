@@ -15,12 +15,31 @@ import Control.Monad.Trans.Elevator
 import qualified Control.Monad.Trans.State as T
 import Data.Failable
 import Data.Kind
-import Data.Type.Bool
 import Control.Monad.Trans.Failable
 import GHC.Generics
 
 import qualified Data.Functor
 import qualified Prelude
+
+-- * Consumption
+
+data Consumption :: Type where
+    Unknown :: Consumption
+    Consuming :: Consumption
+
+type family a && b where
+    'Unknown && x = 'Unknown
+    'Consuming && x = x
+    x && 'Unknown = 'Unknown
+    x && 'Consuming = x
+    x && x = x
+
+type family a || b where
+    'Unknown || x = x
+    'Consuming || x = 'Consuming
+    x || 'Unknown = x
+    x || 'Consuming = 'Consuming
+    x || x = x
 
 -- * Error
 
@@ -38,7 +57,7 @@ instance Prelude.Semigroup (Error e) where
 
 -- | This parser backtracks on failure.
 -- When `c` is `True`, then this parser is guarenteed to consume input on success.
-type ParserT :: Prelude.Bool -- ^ c
+type ParserT :: Consumption -- ^ c
              -> Type -- ^ t
              -> Type -- ^ e
              -> (Type -> Type) -- ^ m
@@ -51,7 +70,7 @@ newtype ParserT c t e m a = ParserT { unParserT :: T.StateT [t] (FailableT (Erro
 parse :: ParserT c t e m a -> [t] -> m (Failable (Error e) (a, [t]))
 parse parser tokens = runFailableT (T.runStateT (unParserT parser) tokens)
 
---combine :: Prelude.Monad m => ParserT 'Prelude.True a e m [b] -> ParserT 'Prelude.True b e m c -> ParserT 'Prelude.True a e m c
+--combine :: Prelude.Monad m => ParserT Consuming a e m [b] -> ParserT Consuming b e m c -> ParserT Consuming a e m c
 --combine x y = ParserT Prelude.$ T.StateT Prelude.$ \ as -> do
 --  (bs, as') <- restoreT (parse x as)
 --  (c, bs') <- restoreT (parse y bs)
@@ -59,18 +78,18 @@ parse parser tokens = runFailableT (T.runStateT (unParserT parser) tokens)
 --    [] -> Prelude.pure (c, as')
 --    _rest -> C.throwError ErrorInputLeft
 
-consume :: Prelude.Monad m => ParserT 'Prelude.True t e m t
+consume :: Prelude.Monad m => ParserT 'Consuming t e m t
 consume = do
-  tokens <- ParserT @'Prelude.True T.get
+  tokens <- ParserT @'Consuming T.get
   case tokens of
    [] -> throw ErrorInputEmpty
    t:ts -> do
-     ParserT @'Prelude.False (T.put ts)
+     ParserT @'Unknown (T.put ts)
      pure t
 
-end :: Prelude.Monad m => ParserT 'Prelude.False t e m ()
+end :: Prelude.Monad m => ParserT 'Unknown t e m ()
 end = do
-  tokens <- ParserT @'Prelude.False T.get
+  tokens <- ParserT @'Unknown T.get
   case tokens of
     [] -> pure ()
     _rest -> throw ErrorInputLeft
@@ -87,7 +106,7 @@ end = do
 (<$) :: Prelude.Functor m => a -> ParserT c t e m b -> ParserT c t e m a
 (<$) = (Data.Functor.<$)
 
-pure :: Prelude.Monad m => a -> ParserT 'Prelude.False t e m a
+pure :: Prelude.Monad m => a -> ParserT 'Unknown t e m a
 pure = ParserT Prelude.. Prelude.pure
 
 (<*>) :: Prelude.Monad m => ParserT c1 t e m (a -> b) -> ParserT c2 t e m a -> ParserT (c1 || c2) t e m b
