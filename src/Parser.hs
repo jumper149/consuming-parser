@@ -7,18 +7,18 @@
 
 module Parser where
 
-import qualified Control.Alternative
-import qualified Control.Monad.Error.Class as C
-import qualified Control.Monad.Identity as Identity
-import qualified Control.Monad.Trans.Class as C
+import Control.Alternative qualified
+import Control.Monad.Error.Class qualified as C
+import Control.Monad.Identity qualified as Identity
+import Control.Monad.Trans.Class qualified as C
 import Control.Monad.Trans.Elevator
 import Control.Monad.Trans.Failable
-import qualified Control.Monad.Trans.State as T
+import Control.Monad.Trans.State qualified as T
 import Data.Failable
 import Data.Kind
 import GHC.Generics
 
-import qualified Prelude
+import Prelude qualified
 
 -- * Consumption
 

@@ -3,9 +3,9 @@
 
 module Parser.Combinators where
 
-import qualified Data.List.NonEmpty
+import Data.List.NonEmpty qualified
 import Parser
-import qualified Prelude
+import Prelude qualified
 
 void :: Prelude.Monad m => ParserT c t e m a -> ParserT c t e m ()
 void p = p >> pure ()

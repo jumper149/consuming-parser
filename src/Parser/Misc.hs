@@ -3,7 +3,7 @@
 module Parser.Misc where
 
 import Data.Failable
-import qualified Parser as P
+import Parser qualified as P
 
 displayResult :: (Show a, Show e, Show t) => Failable (P.Error e) (a, [t]) -> String
 displayResult x =

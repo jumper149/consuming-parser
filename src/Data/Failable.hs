@@ -4,10 +4,10 @@
 module Data.Failable where
 
 import Control.Alternative
-import qualified Control.Monad.Error.Class as C
+import Control.Monad.Error.Class qualified as C
 import Data.Kind
 import GHC.Generics
-import qualified Prelude
+import Prelude qualified
 
 -- * Failable
 

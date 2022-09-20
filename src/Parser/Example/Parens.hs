@@ -3,10 +3,10 @@
 module Parser.Example.Parens where
 
 import Data.Kind
-import qualified Data.List.NonEmpty as NonEmpty
-import qualified Data.Tree as Containers
-import qualified Parser as P
-import qualified Parser.Combinators as P
+import Data.List.NonEmpty qualified as NonEmpty
+import Data.Tree qualified as Containers
+import Parser qualified as P
+import Parser.Combinators qualified as P
 
 throwOn :: Monad m => P.Error e -> P.ParserT 'P.Consuming t e m a -> P.ParserT 'P.Consuming t e m a
 throwOn e p = p P.<|> P.throw e

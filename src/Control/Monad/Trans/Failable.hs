@@ -1,17 +1,17 @@
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 module Control.Monad.Trans.Failable where
 
 import Control.Alternative
-import qualified Control.Monad.Error.Class as C
+import Control.Monad.Error.Class qualified as C
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Control
 import Data.Failable
-import qualified Data.Functor.Compose
+import Data.Functor.Compose qualified
 import Data.Kind
-import qualified Prelude
+import Prelude qualified
 
 type FailableT :: Type -> (Type -> Type) -> Type -> Type
 newtype FailableT e m a = FailableT {runFailableT :: m (Failable e a)}
