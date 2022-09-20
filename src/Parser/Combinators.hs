@@ -8,7 +8,7 @@ import Parser
 import qualified Prelude
 
 many :: Prelude.Monad m => ParserT 'Prelude.True t e m a -> ParserT 'Prelude.False t e m [a]
-many p = map Data.List.NonEmpty.toList (some p) <|> pure []
+many p = Data.List.NonEmpty.toList <$> some p <|> pure []
 
 some :: Prelude.Monad m => ParserT 'Prelude.True t e m a -> ParserT 'Prelude.True t e m (Data.List.NonEmpty.NonEmpty a)
 some p = do

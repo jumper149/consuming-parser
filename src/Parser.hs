@@ -71,8 +71,8 @@ end = do
     [] -> pure ()
     _rest -> throw ErrorInputLeft
 
-map :: Prelude.Functor m => (a -> b) -> ParserT c t e m a -> ParserT c t e m b
-map = Prelude.fmap
+(<$>) :: Prelude.Functor m => (a -> b) -> ParserT c t e m a -> ParserT c t e m b
+(<$>) = Prelude.fmap
 
 pure :: Prelude.Monad m => a -> ParserT 'Prelude.False t e m a
 pure = ParserT Prelude.. Prelude.pure
