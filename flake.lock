@@ -1,57 +1,12 @@
 {
   "nodes": {
-    "deriving-trans": {
-      "inputs": {
-        "monad-control-identity": [
-          "monad-control-identity"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1658175003,
-        "narHash": "sha256-wIL4qLvpMxMPyMu2luAA0kpwSxNIecSvApHOv/swqyQ=",
-        "owner": "jumper149",
-        "repo": "deriving-trans",
-        "rev": "b532bd8531e503114588aa236e07ead45bc85fca",
-        "type": "github"
-      },
-      "original": {
-        "owner": "jumper149",
-        "ref": "v0.4.0.0",
-        "repo": "deriving-trans",
-        "type": "github"
-      }
-    },
-    "monad-control-identity": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1648761184,
-        "narHash": "sha256-HzS2+TwWCxWUmKMKkSC7lDg6d6BOSlltnT2gwzIArRM=",
-        "owner": "jumper149",
-        "repo": "monad-control-identity",
-        "rev": "ba2461a87710e8f776cba59edf75def08ebcc43e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "jumper149",
-        "ref": "v0.2.0.0",
-        "repo": "monad-control-identity",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1658150454,
-        "narHash": "sha256-dhyOQvRT8oYWN0SwsNyujohBsJqwF5W7fnhEcfgBk7E=",
+        "lastModified": 1663578619,
+        "narHash": "sha256-kNgJXZIr4pi2NbDUfjj4APa+LlCmRUM4Ly2Xf70PVaw=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "3110964916469ad6ed9fea72a0a3119a0959a14e",
+        "rev": "a13d59408da1108fc6c9ffe4750ab7a33c581d24",
         "type": "github"
       },
       "original": {
@@ -63,8 +18,6 @@
     },
     "root": {
       "inputs": {
-        "deriving-trans": "deriving-trans",
-        "monad-control-identity": "monad-control-identity",
         "nixpkgs": "nixpkgs"
       }
     }
