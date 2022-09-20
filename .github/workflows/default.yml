@@ -1,0 +1,24 @@
+name: "Default"
+on:
+  push:
+jobs:
+  build:
+    name: "Build"
+    runs-on: ubuntu-latest
+    steps:
+    - name: "Set up GitHub Actions"
+      uses: actions/checkout@v3.0.2
+    - name: "Set up nix"
+      uses: cachix/install-nix-action@v17
+    - name: "Build"
+      run: nix build --print-build-logs
+  check:
+    name: "Check Flake"
+    runs-on: ubuntu-latest
+    steps:
+    - name: "Set up GitHub Actions"
+      uses: actions/checkout@v3.0.2
+    - name: "Set up nix"
+      uses: cachix/install-nix-action@v17
+    - name: "Check"
+      run: nix flake check --keep-going --print-build-logs
