@@ -1,23 +1,21 @@
-{-# LANGUAGE RebindableSyntax #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE QualifiedDo #-}
 
 module Parser.Combinators where
 
-import Data.List.NonEmpty qualified
-import Parser
-import Prelude qualified
+import Data.List.NonEmpty qualified as NE
+import Parser qualified as P
 
-void :: Prelude.Monad m => ParserT c t e m a -> ParserT c t e m ()
-void p = p >> pure ()
+void :: Monad m => P.ParserT c t e m a -> P.ParserT c t e m ()
+void p = p P.>> P.pure ()
 
-optional :: Prelude.Monad m => ParserT Consuming t e m a -> ParserT Unknown t e m (Prelude.Maybe a)
-optional p = catch (Prelude.Just <$> p) (\_ -> pure Prelude.Nothing)
+optional :: Monad m => P.ParserT P.Consuming t e m a -> P.ParserT P.Unknown t e m (Maybe a)
+optional p = P.catch (Just P.<$> p) (\_ -> P.pure Nothing)
 
-many :: Prelude.Monad m => ParserT Consuming t e m a -> ParserT Unknown t e m [a]
-many p = Data.List.NonEmpty.toList <$> some p <|> pure []
+many :: Monad m => P.ParserT P.Consuming t e m a -> P.ParserT P.Unknown t e m [a]
+many p = NE.toList P.<$> some p P.<|> P.pure []
 
-some :: Prelude.Monad m => ParserT Consuming t e m a -> ParserT Consuming t e m (Data.List.NonEmpty.NonEmpty a)
-some p = do
+some :: Monad m => P.ParserT P.Consuming t e m a -> P.ParserT P.Consuming t e m (NE.NonEmpty a)
+some p = P.do
   x <- p
   xs <- many p
-  pure (x Data.List.NonEmpty.:| xs)
+  P.pure (x NE.:| xs)
