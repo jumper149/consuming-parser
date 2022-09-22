@@ -10,25 +10,22 @@ import Parser.Error qualified as P
 import Data.List.NonEmpty qualified as NonEmpty
 
 newline :: Monad m => P.ParserT P.Consuming Char () m ()
-newline =
-  P.token P.>>= \case
-    '\n' -> P.pure ()
-    _ -> P.throw $ P.ErrorCustom ()
+newline = P.equal '\n' P.<|> P.throw (P.ErrorCustom ())
 
 digit :: Monad m => P.ParserT P.Consuming Char () m Char
 digit = P.do
   x <- P.token
   case x of
-    '1' -> P.pure '1'
-    '2' -> P.pure '2'
-    '3' -> P.pure '3'
-    '4' -> P.pure '4'
-    '5' -> P.pure '5'
-    '6' -> P.pure '6'
-    '7' -> P.pure '7'
-    '8' -> P.pure '8'
-    '9' -> P.pure '9'
-    '0' -> P.pure '0'
+    '1' -> P.pure x
+    '2' -> P.pure x
+    '3' -> P.pure x
+    '4' -> P.pure x
+    '5' -> P.pure x
+    '6' -> P.pure x
+    '7' -> P.pure x
+    '8' -> P.pure x
+    '9' -> P.pure x
+    '0' -> P.pure x
     _ -> P.throw $ P.ErrorCustom ()
 
 number :: Monad m => P.ParserT P.Consuming Char () m String
