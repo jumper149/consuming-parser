@@ -71,7 +71,7 @@ end = do
 lift :: Prelude.Monad m => m a -> ParserT c t e m a
 lift = ParserT Prelude.. C.lift
 
--- | '(<$>)' can be expressed using '(>>=)' and 'pure', but then it would enforce the constraint 'Prelude.Functor m'
+-- | '(<$>)' can be expressed using '(>>=)' and 'pure', but then it would enforce the constraint @'Prelude.Functor' m@
 (<$>) :: Prelude.Functor m => (a -> b) -> ParserT c t e m a -> ParserT c t e m b
 f <$> ParserT x = ParserT (f Prelude.<$> x)
 
