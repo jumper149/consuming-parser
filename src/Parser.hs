@@ -99,14 +99,12 @@ end = do
 lift :: Prelude.Monad m => m a -> ParserT c t e m a
 lift x = ParserT (C.lift (C.lift x))
 
+-- | '(<$>)' can be expressed using '(>>=)' and 'pure', but then it would enforce the constraint 'Prelude.Functor m'
 (<$>) :: Prelude.Functor m => (a -> b) -> ParserT c t e m a -> ParserT c t e m b
 f <$> ParserT x = ParserT (f Prelude.<$> x)
 
 pure :: Prelude.Monad m => a -> ParserT Unknown t e m a
 pure = ParserT Prelude.. Prelude.pure
-
-(<*>) :: Prelude.Monad m => ParserT c1 t e m (a -> b) -> ParserT c2 t e m a -> ParserT (c1 || c2) t e m b
-ParserT x <*> ParserT y = ParserT (x Prelude.<*> y)
 
 (>>=) :: Prelude.Monad m => ParserT c1 t e m a -> (a -> ParserT c2 t e m b) -> ParserT (c1 || c2) t e m b
 x >>= f = ParserT (unParserT x Prelude.>>= unParserT Prelude.. f)
@@ -125,6 +123,8 @@ forget (ParserT x) = ParserT x
 
 -- ** Convenient functions
 
+-- *** Functor
+
 (<&>) :: Prelude.Functor m => ParserT c t e m a -> (a -> b) -> ParserT c t e m b
 (<&>) = Prelude.flip (<$>)
 
@@ -134,6 +134,11 @@ x $> y = Prelude.const y <$> x
 (<$) :: Prelude.Functor m => a -> ParserT c t e m b -> ParserT c t e m a
 x <$ y = Prelude.const x <$> y
 
+-- *** Applicative
+
+(<*>) :: Prelude.Monad m => ParserT c1 t e m (a -> b) -> ParserT c2 t e m a -> ParserT (c1 || c2) t e m b
+x <*> y = x >>= \f -> f <$> y
+
 (<**>) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m (a -> b) -> ParserT (c2 || c1) t e m b
 (<**>) = Prelude.flip (<*>)
 
@@ -142,6 +147,8 @@ x *> y = (\_a b -> b) <$> x <*> y
 
 (<*) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m b -> ParserT (c1 || c2) t e m a
 x <* y = (\a _b -> a) <$> x <*> y
+
+-- *** Monad
 
 (=<<) :: Prelude.Monad m => (a -> ParserT c1 t e m b) -> ParserT c2 t e m a -> ParserT (c2 || c1) t e m b
 (=<<) = Prelude.flip (>>=)
