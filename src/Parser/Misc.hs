@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Parser.Misc where
 
 import Data.Failable
