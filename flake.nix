@@ -15,7 +15,7 @@
       });
     };
 
-    defaultPackage.x86_64-linux =
+    packages.x86_64-linux.default =
       with import nixpkgs { system = "x86_64-linux"; overlays = [ self.overlays.default ]; };
       let src = nix-gitignore.gitignoreSource [] ./.;
       in haskellPackages.callCabal2nix "consuming-parser" src {};
@@ -74,7 +74,7 @@
         ];
       };
 
-    devShell.x86_64-linux =
+    devShells.x86_64-linux.default =
       with import nixpkgs { system = "x86_64-linux"; overlays = [ self.overlays.default ]; };
       haskellPackages.shellFor {
         buildInputs = with haskellPackages; [
@@ -87,7 +87,7 @@
           rnix-lsp
         ];
         packages = haskellPackages: [
-          self.defaultPackage.x86_64-linux
+          self.packages.x86_64-linux.default
         ];
         withHoogle = true;
       };
