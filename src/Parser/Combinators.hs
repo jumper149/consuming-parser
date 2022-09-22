@@ -22,10 +22,10 @@ satisfy p =
     P.<|> P.throw P.ErrorSatisfy
 
 equal :: (Eq t, Monad m) => t -> P.ParserT P.Consuming t e m ()
-equal t = void (satisfy (== t)) P.<|> P.throw P.ErrorTerminal
+equal t = void (satisfy (== t)) P.<|> P.throw P.ErrorEqual
 
 oneOf :: (Foldable f, Eq t, Monad m) => f t -> P.ParserT P.Consuming t e m t
-oneOf ts = satisfy (`elem` ts) P.<|> P.throw P.ErrorTerminal
+oneOf ts = satisfy (`elem` ts) P.<|> P.throw P.ErrorOneOf
 
 many :: Monad m => P.ParserT P.Consuming t e m a -> P.ParserT P.Unknown t e m [a]
 many p = NE.toList P.<$> some p P.<|> P.pure []

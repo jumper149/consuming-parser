@@ -18,7 +18,8 @@ data Error :: Type -> Type where
   ErrorInputLeft :: Error e
   ErrorSatisfy :: Error e
   ErrorUnexpectedToken :: Error e
-  ErrorTerminal :: Error e
+  ErrorEqual :: Error e
+  ErrorOneOf :: Error e
   ErrorAppend :: Error e -> Error e -> Error e
   deriving stock (Prelude.Eq, Generic, Prelude.Ord, Prelude.Read, Prelude.Show)
 

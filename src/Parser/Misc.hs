@@ -17,7 +17,9 @@ displayError = \case
   P.ErrorInputEmpty -> "InputEmpty\n"
   P.ErrorInputLeft -> "InputLeft\n"
   P.ErrorUnexpectedToken -> "UnexpectedToken\n"
-  P.ErrorTerminal -> "Terminal\n"
+  P.ErrorSatisfy -> "Satisfy\n"
+  P.ErrorEqual -> "Equal\n"
+  P.ErrorOneOf -> "OneOf\n"
   P.ErrorAppend e1 e2 ->
     let str1 = displayError e1
         str2 = displayError e2
