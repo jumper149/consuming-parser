@@ -36,7 +36,7 @@ type ParserT ::
 newtype ParserT c t e m a = ParserT {unParserT :: ComposeT (T.StateT [t]) (T.FailableT (Error e)) m a}
 
 parseT :: ParserT c t e m a -> [t] -> m (Failable (Error e) (a, [t]))
-parseT parser tokens = runComposeT (\tma -> T.runStateT tma tokens) T.runFailableT (unParserT parser)
+parseT parser tokens = runComposeT (`T.runStateT` tokens) T.runFailableT (unParserT parser)
 
 -- | A pure monadic parser using `ParserT`.
 type Parser ::
@@ -88,10 +88,19 @@ throw :: Prelude.Monad m => Error e -> ParserT c t e m a
 throw e = ParserT (ComposeT (descend (C.throwError e)))
 
 catch :: Prelude.Monad m => ParserT c1 t e m a -> (Error e -> ParserT c2 t e m a) -> ParserT (c1 && c2) t e m a
-catch throwing catching = ParserT (ComposeT (descend (C.catchError (Ascend (deComposeT (unParserT throwing))) (Ascend Prelude.. deComposeT Prelude.. unParserT Prelude.. catching))))
+catch throwing catching =
+  ParserT
+    ( ComposeT
+        ( descend
+            ( C.catchError
+                (Ascend (deComposeT (unParserT throwing)))
+                (Ascend Prelude.. deComposeT Prelude.. unParserT Prelude.. catching)
+            )
+        )
+    )
 
 forget :: ParserT c t e m a -> ParserT Unknown t e m a
-forget (ParserT x) = ParserT x
+forget = ParserT Prelude.. unParserT
 
 -- ** Convenient functions
 
@@ -101,7 +110,7 @@ forget (ParserT x) = ParserT x
 (<&>) = Prelude.flip (<$>)
 
 ($>) :: Prelude.Functor m => ParserT c t e m a -> b -> ParserT c t e m b
-x $> y = Prelude.const y <$> x
+x $> y = y <$ x
 
 (<$) :: Prelude.Functor m => a -> ParserT c t e m b -> ParserT c t e m a
 x <$ y = Prelude.const x <$> y
@@ -118,7 +127,7 @@ x <*> y = x >>= \f -> f <$> y
 x *> y = (\_a b -> b) <$> x <*> y
 
 (<*) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m b -> ParserT (c1 || c2) t e m a
-x <* y = (\a _b -> a) <$> x <*> y
+x <* y = Prelude.const <$> x <*> y
 
 -- *** Monad
 
