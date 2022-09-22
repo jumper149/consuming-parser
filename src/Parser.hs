@@ -7,12 +7,12 @@ import Parser.Error
 
 import Control.Alternative qualified
 import Control.Monad.Error.Class qualified as C
-import Control.Monad.Identity qualified as Identity
+import Control.Monad.Identity qualified
 import Control.Monad.State.Class qualified as C
 import Control.Monad.Trans.Class qualified as C
 import Control.Monad.Trans.Compose
 import Control.Monad.Trans.Elevator
-import Control.Monad.Trans.Failable
+import Control.Monad.Trans.Failable qualified as T
 import Control.Monad.Trans.State qualified as T
 import Data.Failable
 import Data.Kind
@@ -33,10 +33,10 @@ type ParserT ::
   (Type -> Type) -> -- m
   Type -> -- a
   Type
-newtype ParserT c t e m a = ParserT {unParserT :: ComposeT (T.StateT [t]) (FailableT (Error e)) m a}
+newtype ParserT c t e m a = ParserT {unParserT :: ComposeT (T.StateT [t]) (T.FailableT (Error e)) m a}
 
 parseT :: ParserT c t e m a -> [t] -> m (Failable (Error e) (a, [t]))
-parseT parser tokens = runComposeT (\tma -> T.runStateT tma tokens) runFailableT (unParserT parser)
+parseT parser tokens = runComposeT (\tma -> T.runStateT tma tokens) T.runFailableT (unParserT parser)
 
 -- | A pure monadic parser using `ParserT`.
 type Parser ::
@@ -45,10 +45,10 @@ type Parser ::
   Type -> -- e
   Type -> -- a
   Type
-type Parser c t e a = ParserT c t e Identity.Identity a
+type Parser c t e a = ParserT c t e Control.Monad.Identity.Identity a
 
 parse :: Parser c t e a -> [t] -> Failable (Error e) (a, [t])
-parse parser tokens = Identity.runIdentity (parseT parser tokens)
+parse parser tokens = Control.Monad.Identity.runIdentity (parseT parser tokens)
 
 -- * Core primitives
 
