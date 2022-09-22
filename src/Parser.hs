@@ -7,6 +7,8 @@
 
 module Parser where
 
+import Parser.Error
+
 import Control.Alternative qualified
 import Control.Monad.Error.Class qualified as C
 import Control.Monad.Identity qualified as Identity
@@ -16,7 +18,6 @@ import Control.Monad.Trans.Failable
 import Control.Monad.Trans.State qualified as T
 import Data.Failable
 import Data.Kind
-import GHC.Generics
 import Prelude qualified
 
 -- * Consumption
@@ -41,22 +42,6 @@ type family a || b where
   x || Unknown = x
   _ || Consuming = Consuming
   x || x = x
-
--- * Error
-
-type Error :: Type -> Type -- TODO: This is redundant.
-data Error :: Type -> Type where
-  ErrorCustom :: e -> Error e
-  ErrorInputEmpty :: Error e
-  ErrorInputLeft :: Error e
-  ErrorSatisfy :: Error e
-  ErrorUnexpectedToken :: Error e
-  ErrorTerminal :: Error e
-  ErrorAppend :: Error e -> Error e -> Error e
-  deriving stock (Prelude.Eq, Generic, Prelude.Ord, Prelude.Read, Prelude.Show)
-
-instance Prelude.Semigroup (Error e) where
-  (<>) = ErrorAppend
 
 -- * Parser
 

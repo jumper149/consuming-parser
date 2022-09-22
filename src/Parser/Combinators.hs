@@ -4,6 +4,7 @@ module Parser.Combinators where
 
 import Data.List.NonEmpty qualified as NE
 import Parser qualified as P
+import Parser.Error qualified as P
 
 void :: Monad m => P.ParserT c t e m a -> P.ParserT c t e m ()
 void p = p P.>> P.pure ()
