@@ -7,6 +7,7 @@ import Parser.Consumption qualified as P
 import Parser.Error qualified as P
 
 import Data.List.NonEmpty qualified as NE
+import Data.Bifunctor
 
 -- * Primitives
 
@@ -55,7 +56,7 @@ manyTill ::
   P.ParserT P.Consuming t e m a ->
   P.ParserT P.Unknown t e m b ->
   P.ParserT P.Unknown t e m ([a], b)
-manyTill p c = ([],) P.<$> c `P.catch` \_err -> (\(xs, y) -> (NE.toList xs, y)) P.<$> someTill p c
+manyTill p c = ([],) P.<$> c `P.catch` \_err -> first NE.toList P.<$> someTill p c
 
 someTill ::
   Monad m =>
@@ -65,4 +66,4 @@ someTill ::
 someTill p c = P.do
   x <- p
   (xs, y) <- manyTill p c
-  P.pure ((x NE.:| xs), y)
+  P.pure (x NE.:| xs, y)
