@@ -11,23 +11,20 @@ void p = p P.>> P.pure ()
 optional :: Monad m => P.ParserT P.Consuming t e m a -> P.ParserT P.Unknown t e m (Maybe a)
 optional p = P.catch (Just P.<$> p) (\_ -> P.pure Nothing)
 
-terminal :: (Eq t, Monad m) => t -> P.ParserT P.Consuming t e m ()
-terminal t =
+satisfy :: Monad m => (t -> Bool) -> P.ParserT P.Consuming t e m t
+satisfy p =
   P.do
     x <- P.token
-    if x == t
-      then P.pure ()
+    if p x
+      then P.pure x
       else P.throw P.ErrorUnexpectedToken
-    P.<|> P.throw P.ErrorTerminal
+  P.<|> P.throw P.ErrorSatisfy
 
-terminalOneOf :: (Foldable f, Eq t, Monad m) => f t -> P.ParserT P.Consuming t e m ()
-terminalOneOf ts =
-  P.do
-    x <- P.token
-    if x `elem` ts
-      then P.pure ()
-      else P.throw P.ErrorUnexpectedToken
-    P.<|> P.throw P.ErrorTerminal
+equal :: (Eq t, Monad m) => t -> P.ParserT P.Consuming t e m ()
+equal t = void (satisfy (== t)) P.<|> P.throw P.ErrorTerminal
+
+oneOf :: (Foldable f, Eq t, Monad m) => f t -> P.ParserT P.Consuming t e m t
+oneOf ts = satisfy (`elem` ts) P.<|> P.throw P.ErrorTerminal
 
 many :: Monad m => P.ParserT P.Consuming t e m a -> P.ParserT P.Unknown t e m [a]
 many p = NE.toList P.<$> some p P.<|> P.pure []

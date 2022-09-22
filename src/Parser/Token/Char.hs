@@ -34,7 +34,7 @@ number = (NonEmpty.toList P.<$> P.some digit) P.<* P.end
 floating :: Monad m => P.ParserT P.Consuming Char () m String
 floating = P.do
   wholes <- NonEmpty.toList P.<$> P.some digit
-  P.terminal '.'
+  P.equal '.'
   fractions <- NonEmpty.toList P.<$> P.some digit
   P.end
   P.pure $ wholes ++ "." ++ fractions

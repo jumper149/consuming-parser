@@ -49,6 +49,7 @@ data Error :: Type -> Type where
   ErrorCustom :: e -> Error e
   ErrorInputEmpty :: Error e
   ErrorInputLeft :: Error e
+  ErrorSatisfy :: Error e
   ErrorUnexpectedToken :: Error e
   ErrorTerminal :: Error e
   ErrorAppend :: Error e -> Error e -> Error e
