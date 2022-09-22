@@ -11,6 +11,14 @@ void p = p P.>> P.pure ()
 optional :: Monad m => P.ParserT P.Consuming t e m a -> P.ParserT P.Unknown t e m (Maybe a)
 optional p = P.catch (Just P.<$> p) (\_ -> P.pure Nothing)
 
+terminal :: (Eq t, Monad m) => t -> P.ParserT P.Consuming t e m ()
+terminal t = P.do
+    x <- P.consume
+    if x == t
+       then P.pure ()
+       else P.throw P.ErrorUnexpectedToken
+  P.<|> P.throw P.ErrorTerminal
+
 many :: Monad m => P.ParserT P.Consuming t e m a -> P.ParserT P.Unknown t e m [a]
 many p = NE.toList P.<$> some p P.<|> P.pure []
 

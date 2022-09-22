@@ -16,6 +16,8 @@ displayError = \case
   P.ErrorCustom e -> show e ++ "\n"
   P.ErrorInputEmpty -> "InputEmpty\n"
   P.ErrorInputLeft -> "InputLeft\n"
+  P.ErrorUnexpectedToken -> "UnexpectedToken\n"
+  P.ErrorTerminal -> "Terminal\n"
   P.ErrorAppend e1 e2 ->
     let str1 = displayError e1
         str2 = displayError e2
