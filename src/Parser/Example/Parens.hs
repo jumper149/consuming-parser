@@ -8,8 +8,8 @@ import Parser.Consumption qualified as P
 import Parser.Error qualified as P
 
 import Data.Kind
-import Data.List.NonEmpty qualified as NonEmpty
-import Data.Tree qualified as Containers
+import Data.List.NonEmpty qualified as NE
+import Data.Tree qualified as C
 
 throwOn :: Monad m => P.Error e -> P.ParserT P.Consuming t e m a -> P.ParserT P.Consuming t e m a
 throwOn e p = p P.<|> P.throw e
@@ -23,7 +23,7 @@ closingParser = P.equal ')' P.<|> P.throw (P.ErrorCustom "No closing parens.")
 type Tree :: Type
 data Tree
   = Node
-  | Fingers (NonEmpty.NonEmpty Tree)
+  | Fingers (NE.NonEmpty Tree)
   deriving stock (Show)
 
 nodeParser :: Monad m => P.ParserT P.Consuming Char String m Tree
@@ -51,7 +51,7 @@ fullParser = P.do
   P.pure result
 
 drawTree :: Tree -> String
-drawTree tree = Containers.drawTree (convertTree tree)
+drawTree tree = C.drawTree (convertTree tree)
  where
-  convertTree Node = Containers.Node @String "x" []
-  convertTree (Fingers (x NonEmpty.:| xs)) = Containers.Node @String "x" (convertTree <$> (x : xs))
+  convertTree Node = C.Node @String "x" []
+  convertTree (Fingers (x NE.:| xs)) = C.Node @String "x" (convertTree <$> (x : xs))
