@@ -133,8 +133,8 @@ x >> y = x >>= Prelude.const y
 
 -- * Composition
 
---compose :: Prelude.Monad m => ParserT Consuming a e m [b] -> ParserT Consuming b e m c -> ParserT Consuming a e m c
---compose x y = ParserT Prelude.$ T.StateT Prelude.$ \ as -> do
+-- compose :: Prelude.Monad m => ParserT Consuming a e m [b] -> ParserT Consuming b e m c -> ParserT Consuming a e m c
+-- compose x y = ParserT Prelude.$ T.StateT Prelude.$ \ as -> do
 -- (bs, as') <- restoreT (parse x as)
 -- (c, bs') <- restoreT (parse y bs)
 -- case bs' of

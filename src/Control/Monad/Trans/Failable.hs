@@ -21,9 +21,9 @@ instance Monad m => Monad (FailableT e m) where
     FailableT
       ( runFailableT ma
           >>= ( \case
-                          Failed e -> pure (Failed e)
-                          Succeeding x -> runFailableT (fma x)
-                      )
+                  Failed e -> pure (Failed e)
+                  Succeeding x -> runFailableT (fma x)
+              )
       )
 
 instance MonadTrans (FailableT e) where
@@ -44,7 +44,7 @@ instance Monad m => C.MonadError e (FailableT e m) where
     FailableT
       ( runFailableT e
           >>= ( \case
-                          Failed err -> runFailableT (f err)
-                          val@(Succeeding _) -> pure val
-                      )
+                  Failed err -> runFailableT (f err)
+                  val@(Succeeding _) -> pure val
+              )
       )
