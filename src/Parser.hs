@@ -7,6 +7,7 @@
 
 module Parser where
 
+import Parser.Consumption
 import Parser.Error
 
 import Control.Alternative qualified
@@ -19,29 +20,6 @@ import Control.Monad.Trans.State qualified as T
 import Data.Failable
 import Data.Kind
 import Prelude qualified
-
--- * Consumption
-
-type Consumption :: Type -- TODO: This is redundant.
-data Consumption :: Type where
-  Unknown :: Consumption
-  Consuming :: Consumption
-
-type (&&) :: Consumption -> Consumption -> Consumption
-type family a && b where
-  Unknown && _ = Unknown
-  Consuming && x = x
-  _ && Unknown = Unknown
-  x && Consuming = x
-  x && x = x
-
-type (||) :: Consumption -> Consumption -> Consumption
-type family a || b where
-  Unknown || x = x
-  Consuming || _ = Consuming
-  x || Unknown = x
-  _ || Consuming = Consuming
-  x || x = x
 
 -- * Parser
 

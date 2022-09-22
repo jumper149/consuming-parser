@@ -20,6 +20,7 @@ library
     Data.Failable
     Parser
     Parser.Combinators
+    Parser.Consumption
     Parser.Error
     Parser.Misc
     Parser.Token.Char
