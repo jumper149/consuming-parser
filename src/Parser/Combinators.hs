@@ -6,11 +6,7 @@ import Data.List.NonEmpty qualified as NE
 import Parser qualified as P
 import Parser.Error qualified as P
 
-void :: Monad m => P.ParserT c t e m a -> P.ParserT c t e m ()
-void p = p P.>> P.pure ()
-
-optional :: Monad m => P.ParserT P.Consuming t e m a -> P.ParserT P.Unknown t e m (Maybe a)
-optional p = P.catch (Just P.<$> p) (\_ -> P.pure Nothing)
+-- * Primitives
 
 satisfy :: Monad m => (t -> Bool) -> P.ParserT P.Consuming t e m t
 satisfy p =
@@ -26,6 +22,22 @@ equal t = void (satisfy (== t)) P.<|> P.throw P.ErrorEqual
 
 oneOf :: (Foldable f, Eq t, Monad m) => f t -> P.ParserT P.Consuming t e m t
 oneOf ts = satisfy (`elem` ts) P.<|> P.throw P.ErrorOneOf
+
+rest :: Monad m => P.ParserT P.Unknown t e m [t]
+rest =
+  P.do
+    x <- P.token
+    xs <- rest
+    P.pure $ xs ++ [x]
+    P.<|> P.pure []
+
+-- * Combinators
+
+void :: Monad m => P.ParserT c t e m a -> P.ParserT c t e m ()
+void p = p P.>> P.pure ()
+
+optional :: Monad m => P.ParserT P.Consuming t e m a -> P.ParserT P.Unknown t e m (Maybe a)
+optional p = P.catch (Just P.<$> p) (\_ -> P.pure Nothing)
 
 many :: Monad m => P.ParserT P.Consuming t e m a -> P.ParserT P.Unknown t e m [a]
 many p = NE.toList P.<$> some p P.<|> P.pure []
@@ -52,11 +64,3 @@ someTill p c = P.do
   x <- p
   (xs, y) <- manyTill p c
   P.pure ((x NE.:| xs), y)
-
-rest :: Monad m => P.ParserT P.Unknown t e m [t]
-rest =
-  P.do
-    x <- P.token
-    xs <- rest
-    P.pure $ xs ++ [x]
-    P.<|> P.pure []
