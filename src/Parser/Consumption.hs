@@ -5,8 +5,9 @@ module Parser.Consumption where
 import Data.Kind
 
 type Consumption :: Type
-data Consumption = Unknown
-                 | Consuming
+data Consumption
+  = Unknown
+  | Consuming
 
 type (&&) :: Consumption -> Consumption -> Consumption
 type family a && b where

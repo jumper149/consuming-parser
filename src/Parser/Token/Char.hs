@@ -2,11 +2,12 @@
 
 module Parser.Token.Char where
 
-import Data.List.NonEmpty qualified as NonEmpty
 import Parser qualified as P
 import Parser.Combinators qualified as P
 import Parser.Consumption qualified as P
 import Parser.Error qualified as P
+
+import Data.List.NonEmpty qualified as NonEmpty
 
 newline :: Monad m => P.ParserT P.Consuming Char () m ()
 newline =

@@ -2,7 +2,6 @@ module Parser.Error where
 
 import Data.Kind
 import GHC.Generics
-import Prelude qualified
 
 type Error :: Type -> Type -- TODO: This is redundant.
 data Error :: Type -> Type where

@@ -1,7 +1,8 @@
 module Parser.Misc where
 
-import Data.Failable
 import Parser.Error qualified as P
+
+import Data.Failable
 
 displayResult :: (Show a, Show e, Show t) => Failable (P.Error e) (a, [t]) -> String
 displayResult x =

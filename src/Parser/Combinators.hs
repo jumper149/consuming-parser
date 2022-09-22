@@ -2,10 +2,11 @@
 
 module Parser.Combinators where
 
-import Data.List.NonEmpty qualified as NE
 import Parser qualified as P
 import Parser.Consumption qualified as P
 import Parser.Error qualified as P
+
+import Data.List.NonEmpty qualified as NE
 
 -- * Primitives
 
