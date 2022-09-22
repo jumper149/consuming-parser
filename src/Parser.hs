@@ -36,6 +36,7 @@ newtype ParserT c t e m a = ParserT {unParserT :: T.StateT [t] (FailableT (Error
 parseT :: ParserT c t e m a -> [t] -> m (Failable (Error e) (a, [t]))
 parseT parser tokens = runFailableT (T.runStateT (unParserT parser) tokens)
 
+-- | A pure monadic parser using `ParserT`.
 type Parser ::
   Consumption -> -- c
   Type -> -- t
