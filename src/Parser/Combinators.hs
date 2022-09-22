@@ -18,7 +18,7 @@ satisfy p =
     if p x
       then P.pure x
       else P.throw P.ErrorUnexpectedToken
-  P.<|> P.throw P.ErrorSatisfy
+    P.<|> P.throw P.ErrorSatisfy
 
 equal :: (Eq t, Monad m) => t -> P.ParserT P.Consuming t e m ()
 equal t = void (satisfy (== t)) P.<|> P.throw P.ErrorTerminal
@@ -51,3 +51,11 @@ someTill p c = P.do
   x <- p
   (xs, y) <- manyTill p c
   P.pure ((x NE.:| xs), y)
+
+rest :: Monad m => P.ParserT P.Unknown t e m [t]
+rest =
+  P.do
+    x <- P.token
+    xs <- rest
+    P.pure $ xs ++ [x]
+    P.<|> P.pure []
