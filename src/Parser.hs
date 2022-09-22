@@ -48,14 +48,6 @@ type Parser c t e a = ParserT c t e Identity.Identity a
 parse :: Parser c t e a -> [t] -> Failable (Error e) (a, [t])
 parse parser tokens = Identity.runIdentity (parseT parser tokens)
 
--- combine :: Prelude.Monad m => ParserT Consuming a e m [b] -> ParserT Consuming b e m c -> ParserT Consuming a e m c
--- combine x y = ParserT Prelude.$ T.StateT Prelude.$ \ as -> do
---  (bs, as') <- restoreT (parse x as)
---  (c, bs') <- restoreT (parse y bs)
---  case bs' of
---    [] -> Prelude.pure (c, as')
---    _rest -> C.throwError ErrorInputLeft
-
 -- * Core primitives
 
 token :: Prelude.Monad m => ParserT Consuming t e m t
@@ -136,3 +128,13 @@ x >> y = x >>= Prelude.const y
 
 (<<) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m b -> ParserT (c2 || c1) t e m a
 (<<) = Prelude.flip (>>)
+
+-- * Composition
+
+--compose :: Prelude.Monad m => ParserT Consuming a e m [b] -> ParserT Consuming b e m c -> ParserT Consuming a e m c
+--compose x y = ParserT Prelude.$ T.StateT Prelude.$ \ as -> do
+-- (bs, as') <- restoreT (parse x as)
+-- (c, bs') <- restoreT (parse y bs)
+-- case bs' of
+--   [] -> Prelude.pure (c, as')
+--   _rest -> C.throwError ErrorInputLeft
