@@ -92,8 +92,8 @@ parse parser tokens = Identity.runIdentity (parseT parser tokens)
 --    [] -> Prelude.pure (c, as')
 --    _rest -> C.throwError ErrorInputLeft
 
-consume :: Prelude.Monad m => ParserT Consuming t e m t
-consume = do
+token :: Prelude.Monad m => ParserT Consuming t e m t
+token = do
   tokens <- ParserT @Consuming T.get
   case tokens of
     [] -> throw ErrorInputEmpty

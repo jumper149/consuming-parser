@@ -13,14 +13,14 @@ throwOn e p = p P.<|> P.throw e
 
 openingParser :: Monad m => P.ParserT P.Consuming Char String m ()
 openingParser = P.do
-  x <- P.consume
+  x <- P.token
   case x of
     '(' -> P.pure ()
     _ -> P.throw $ P.ErrorCustom "No opening parens."
 
 closingParser :: Monad m => P.ParserT P.Consuming Char String m ()
 closingParser = P.do
-  x <- P.consume
+  x <- P.token
   case x of
     ')' -> P.pure ()
     _ -> P.throw $ P.ErrorCustom "No closing parens."

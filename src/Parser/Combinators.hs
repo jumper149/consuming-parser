@@ -13,7 +13,7 @@ optional p = P.catch (Just P.<$> p) (\_ -> P.pure Nothing)
 
 terminal :: (Eq t, Monad m) => t -> P.ParserT P.Consuming t e m ()
 terminal t = P.do
-    x <- P.consume
+    x <- P.token
     if x == t
        then P.pure ()
        else P.throw P.ErrorUnexpectedToken
