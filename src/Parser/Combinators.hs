@@ -20,6 +20,15 @@ terminal t =
       else P.throw P.ErrorUnexpectedToken
     P.<|> P.throw P.ErrorTerminal
 
+terminalOneOf :: (Foldable f, Eq t, Monad m) => f t -> P.ParserT P.Consuming t e m ()
+terminalOneOf ts =
+  P.do
+    x <- P.token
+    if x `elem` ts
+      then P.pure ()
+      else P.throw P.ErrorUnexpectedToken
+    P.<|> P.throw P.ErrorTerminal
+
 many :: Monad m => P.ParserT P.Consuming t e m a -> P.ParserT P.Unknown t e m [a]
 many p = NE.toList P.<$> some p P.<|> P.pure []
 
