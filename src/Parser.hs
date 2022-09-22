@@ -45,8 +45,12 @@ type family a || b where
 
 -- * Parser
 
--- | This parser backtracks on failure.
--- When `c` is `True`, then this parser is guarenteed to consume input on success.
+-- | A monad transformer for a monadic parser.
+--
+-- This parser backtracks on failure.
+--
+-- When `c` is 'Consuming', then this parser is guarenteed to consume input on success.
+-- When `c` is 'Unknown', the parser might or might not consume input on success.
 type ParserT ::
   Consumption -> -- c
   Type -> -- t
