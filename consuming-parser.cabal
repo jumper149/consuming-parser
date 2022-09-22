@@ -21,6 +21,7 @@ library
     Parser
     Parser.Combinators
     Parser.Misc
+    Parser.Token.Char
   other-modules:
     Parser.Example.Parens
   build-depends:
