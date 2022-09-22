@@ -1,44 +1,38 @@
-{-# LANGUAGE GADTSyntax #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-
 module Data.Failable where
 
-import Control.Alternative
+import Control.Alternative qualified
 import Control.Monad.Error.Class qualified as C
 import Data.Kind
 import GHC.Generics
-import Prelude qualified
-
--- * Failable
 
 type Failable :: Type -> Type -> Type -- TODO: This is redundant.
 data Failable :: Type -> Type -> Type where
   Failed :: e -> Failable e a
   Succeeding :: a -> Failable e a
-  deriving stock (Prelude.Eq, Generic, Prelude.Ord, Prelude.Read, Prelude.Show)
-  deriving stock (Prelude.Functor)
+  deriving stock (Eq, Generic, Ord, Read, Show)
+  deriving stock (Functor)
 
-instance Prelude.Applicative (Failable e) where
+instance Applicative (Failable e) where
   pure = Succeeding
   f <*> x =
     case f of
       Failed e -> Failed e
-      Succeeding g -> Prelude.fmap g x
+      Succeeding g -> fmap g x
 
-instance Prelude.Monad (Failable e) where
+instance Monad (Failable e) where
   a >>= f =
     case a of
       Failed e -> Failed e
       Succeeding b -> f b
 
-instance Prelude.Semigroup e => Alternative (Failable e) where
+instance Semigroup e => Control.Alternative.Alternative (Failable e) where
   x <|> y =
     case x of
       val@(Succeeding _) -> val
       Failed xErr ->
         case y of
           val@(Succeeding _) -> val
-          Failed yErr -> Failed (xErr Prelude.<> yErr)
+          Failed yErr -> Failed (xErr <> yErr)
 
 instance C.MonadError e (Failable e) where
   throwError = Failed
