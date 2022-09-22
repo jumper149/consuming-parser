@@ -68,7 +68,7 @@ token = do
   case tokens of
     [] -> throw ErrorInputEmpty
     t : ts -> do
-      ParserT @Unknown (T.put ts)
+      _ <- ParserT @Unknown (T.put ts)
       pure t
 
 end :: Prelude.Monad m => ParserT Unknown t e m ()
