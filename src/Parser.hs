@@ -78,6 +78,8 @@ parse parser tokens = Identity.runIdentity (parseT parser tokens)
 --    [] -> Prelude.pure (c, as')
 --    _rest -> C.throwError ErrorInputLeft
 
+-- * Core primitives
+
 token :: Prelude.Monad m => ParserT Consuming t e m t
 token = do
   tokens <- ParserT @Consuming T.get
@@ -100,41 +102,14 @@ lift x = ParserT (C.lift (C.lift x))
 (<$>) :: Prelude.Functor m => (a -> b) -> ParserT c t e m a -> ParserT c t e m b
 f <$> ParserT x = ParserT (f Prelude.<$> x)
 
-(<&>) :: Prelude.Functor m => ParserT c t e m a -> (a -> b) -> ParserT c t e m b
-(<&>) = Prelude.flip (<$>)
-
-($>) :: Prelude.Functor m => ParserT c t e m a -> b -> ParserT c t e m b
-x $> y = Prelude.const y <$> x
-
-(<$) :: Prelude.Functor m => a -> ParserT c t e m b -> ParserT c t e m a
-x <$ y = Prelude.const x <$> y
-
 pure :: Prelude.Monad m => a -> ParserT Unknown t e m a
 pure = ParserT Prelude.. Prelude.pure
 
 (<*>) :: Prelude.Monad m => ParserT c1 t e m (a -> b) -> ParserT c2 t e m a -> ParserT (c1 || c2) t e m b
 ParserT x <*> ParserT y = ParserT (x Prelude.<*> y)
 
-(<**>) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m (a -> b) -> ParserT (c2 || c1) t e m b
-(<**>) = Prelude.flip (<*>)
-
-(*>) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m b -> ParserT (c1 || c2) t e m b
-x *> y = (\_a b -> b) <$> x <*> y
-
-(<*) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m b -> ParserT (c1 || c2) t e m a
-x <* y = (\a _b -> a) <$> x <*> y
-
 (>>=) :: Prelude.Monad m => ParserT c1 t e m a -> (a -> ParserT c2 t e m b) -> ParserT (c1 || c2) t e m b
 x >>= f = ParserT (unParserT x Prelude.>>= unParserT Prelude.. f)
-
-(=<<) :: Prelude.Monad m => (a -> ParserT c1 t e m b) -> ParserT c2 t e m a -> ParserT (c2 || c1) t e m b
-(=<<) = Prelude.flip (>>=)
-
-(>>) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m b -> ParserT (c1 || c2) t e m b
-x >> y = x >>= Prelude.const y
-
-(<<) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m b -> ParserT (c2 || c1) t e m a
-(<<) = Prelude.flip (>>)
 
 (<|>) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m a -> ParserT (c1 && c2) t e m a
 ParserT x <|> ParserT y = ParserT (descend (Ascend x Control.Alternative.<|> Ascend y))
@@ -147,3 +122,32 @@ catch throwing catching = ParserT (descend (C.catchError (Ascend (unParserT thro
 
 forget :: ParserT c t e m a -> ParserT Unknown t e m a
 forget (ParserT x) = ParserT x
+
+-- ** Convenient functions
+
+(<&>) :: Prelude.Functor m => ParserT c t e m a -> (a -> b) -> ParserT c t e m b
+(<&>) = Prelude.flip (<$>)
+
+($>) :: Prelude.Functor m => ParserT c t e m a -> b -> ParserT c t e m b
+x $> y = Prelude.const y <$> x
+
+(<$) :: Prelude.Functor m => a -> ParserT c t e m b -> ParserT c t e m a
+x <$ y = Prelude.const x <$> y
+
+(<**>) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m (a -> b) -> ParserT (c2 || c1) t e m b
+(<**>) = Prelude.flip (<*>)
+
+(*>) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m b -> ParserT (c1 || c2) t e m b
+x *> y = (\_a b -> b) <$> x <*> y
+
+(<*) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m b -> ParserT (c1 || c2) t e m a
+x <* y = (\a _b -> a) <$> x <*> y
+
+(=<<) :: Prelude.Monad m => (a -> ParserT c1 t e m b) -> ParserT c2 t e m a -> ParserT (c2 || c1) t e m b
+(=<<) = Prelude.flip (>>=)
+
+(>>) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m b -> ParserT (c1 || c2) t e m b
+x >> y = x >>= Prelude.const y
+
+(<<) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m b -> ParserT (c2 || c1) t e m a
+(<<) = Prelude.flip (>>)
