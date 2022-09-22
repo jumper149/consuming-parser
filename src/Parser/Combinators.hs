@@ -29,7 +29,7 @@ rest =
   P.do
     x <- P.token
     xs <- rest
-    P.pure $ xs ++ [x]
+    P.pure $ x : xs
     P.<|> P.pure []
 
 -- * Combinators
