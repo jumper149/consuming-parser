@@ -35,19 +35,19 @@ some p = P.do
   xs <- many p
   P.pure (x NE.:| xs)
 
-manyUntil ::
+manyTill ::
   Monad m =>
   P.ParserT P.Consuming t e m a ->
   P.ParserT P.Unknown t e m b ->
   P.ParserT P.Unknown t e m ([a], b)
-manyUntil p c = ([],) P.<$> c `P.catch` \_err -> (\(xs, y) -> (NE.toList xs, y)) P.<$> someUntil p c
+manyTill p c = ([],) P.<$> c `P.catch` \_err -> (\(xs, y) -> (NE.toList xs, y)) P.<$> someTill p c
 
-someUntil ::
+someTill ::
   Monad m =>
   P.ParserT P.Consuming t e m a ->
   P.ParserT P.Unknown t e m b ->
   P.ParserT P.Consuming t e m (NE.NonEmpty a, b)
-someUntil p c = P.do
+someTill p c = P.do
   x <- p
-  (xs, y) <- manyUntil p c
+  (xs, y) <- manyTill p c
   P.pure ((x NE.:| xs), y)
