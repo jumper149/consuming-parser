@@ -38,6 +38,24 @@
         ];
       };
 
+    checks.x86_64-linux.hlint =
+      with import nixpkgs { system = "x86_64-linux"; overlays = [ self.overlays.default ]; };
+      stdenv.mkDerivation {
+        name = "hlint"; # TODO: Necessary to avoid segmentation fault.
+        src = ./.;
+        buildPhase = ''
+          hlint ./src
+        '';
+        installPhase = ''
+          mkdir $out
+        '';
+        buildInputs = [
+        ];
+        nativeBuildInputs = [
+          haskellPackages.hlint
+        ];
+      };
+
     checks.x86_64-linux.hie-yaml =
       with import nixpkgs { system = "x86_64-linux"; overlays = [ self.overlays.default ]; };
       stdenv.mkDerivation {
