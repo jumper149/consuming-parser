@@ -40,10 +40,10 @@ fingersParser =
     openingParser
     insideResult <- P.some treeParser
     closingParser
-    P.pure (Fingers insideResult)
+    P.pure $ Fingers insideResult
 
 treeParser :: Monad m => P.ParserT P.Consuming Char String m Tree
-treeParser = throwOn (P.ErrorCustom "No tree.") (nodeParser P.<|> fingersParser)
+treeParser = throwOn (P.ErrorCustom "No tree.") $ nodeParser P.<|> fingersParser
 
 fullParser :: Monad m => P.ParserT P.Consuming Char String m Tree
 fullParser = P.do
@@ -55,4 +55,4 @@ drawTree :: Tree -> String
 drawTree tree = C.drawTree (convertTree tree)
  where
   convertTree Node = C.Node @String "x" []
-  convertTree (Fingers (x NE.:| xs)) = C.Node @String "x" (convertTree <$> (x : xs))
+  convertTree (Fingers (x NE.:| xs)) = C.Node @String "x" $ convertTree <$> x : xs
