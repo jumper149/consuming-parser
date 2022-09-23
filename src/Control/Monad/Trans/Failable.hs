@@ -2,9 +2,9 @@
 
 module Control.Monad.Trans.Failable where
 
-import Control.Alternative
+import Control.Alternative qualified
 import Control.Monad.Error.Class qualified as C
-import Control.Monad.Trans.Class
+import Control.Monad.Trans.Class qualified as C
 import Control.Monad.Trans.Compose
 import Control.Monad.Trans.Control
 import Data.Failable
@@ -25,7 +25,7 @@ instance Monad m => Monad (FailableT e m) where
           Failed e -> pure $ Failed e
           Succeeding x -> runFailableT $ fma x
 
-instance MonadTrans (FailableT e) where
+instance C.MonadTrans (FailableT e) where
   lift = FailableT . fmap pure
 
 instance MonadTransControl (FailableT e) where
@@ -33,8 +33,8 @@ instance MonadTransControl (FailableT e) where
   liftWith f = FailableT $ pure <$> f runFailableT
   restoreT = FailableT
 
-instance (Applicative m, Semigroup e) => Alternative (FailableT e m) where
-  FailableT x <|> FailableT y = FailableT $ (<|>) <$> x <*> y
+instance (Applicative m, Semigroup e) => Control.Alternative.Alternative (FailableT e m) where
+  FailableT x <|> FailableT y = FailableT $ (Control.Alternative.<|>) <$> x <*> y
 
 instance Monad m => C.MonadError e (FailableT e m) where
   throwError = FailableT . pure . C.throwError
