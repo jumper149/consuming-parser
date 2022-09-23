@@ -4,6 +4,7 @@ module Parser.Core where
 
 import Parser.Core.Consumption
 import Parser.Core.Error
+import Parser.Core.Index
 
 import Control.Applicative qualified
 import Control.Monad.Error.Class qualified as C
@@ -15,7 +16,15 @@ import Control.Monad.Trans.Elevator
 import Control.Monad.Trans.Except qualified as T
 import Control.Monad.Trans.State qualified as T
 import Data.Kind
+import GHC.Generics
 import Prelude qualified
+
+type State :: Type -> Type
+data State t = MkState
+  { stateTokens :: [t]
+  , statePosition :: Index
+  }
+  deriving stock (Prelude.Eq, Generic, Prelude.Ord, Prelude.Read, Prelude.Show)
 
 -- * Parser
 
@@ -32,10 +41,12 @@ type ParserT ::
   (Type -> Type) -> -- m
   Type -> -- a
   Type
-newtype ParserT c t e m a = ParserT {unParserT :: ComposeT (T.StateT [t]) (T.ExceptT (Trace e)) m a}
+newtype ParserT c t e m a = ParserT {unParserT :: ComposeT (T.StateT (State t)) (T.ExceptT (Trace e)) m a}
 
-parseT :: ParserT c t e m a -> [t] -> m (Prelude.Either (Trace e) (a, [t]))
-parseT parser tokens = runComposeT (`T.runStateT` tokens) T.runExceptT (unParserT parser)
+parseT :: ParserT c t e m a -> [t] -> m (Prelude.Either (Trace e) (a, (State t)))
+parseT parser tokens = runComposeT (`T.runStateT` state) T.runExceptT (unParserT parser)
+ where
+  state = MkState {stateTokens = tokens, statePosition = Zero}
 
 -- | A pure monadic parser using `ParserT`.
 type Parser ::
@@ -46,24 +57,24 @@ type Parser ::
   Type
 type Parser c t e a = ParserT c t e Control.Monad.Identity.Identity a
 
-parse :: Parser c t e a -> [t] -> Prelude.Either (Trace e) (a, [t])
+parse :: Parser c t e a -> [t] -> Prelude.Either (Trace e) (a, State t)
 parse parser tokens = Control.Monad.Identity.runIdentity (parseT parser tokens)
 
 -- * Core primitives
 
 token :: Prelude.Monad m => ParserT Consuming t e m t
 token = do
-  tokens <- ParserT @Consuming C.get
-  case tokens of
+  state <- ParserT @Consuming C.get
+  case stateTokens state of
     [] -> throw ErrorInputEmpty
     t : ts -> do
-      _ <- ParserT @Unknown (C.put ts)
+      _ <- ParserT @Unknown (C.put MkState {stateTokens = ts, statePosition = Successor (statePosition state)})
       pure t
 
 end :: Prelude.Monad m => ParserT Unknown t e m ()
 end = do
-  tokens <- ParserT @Unknown C.get
-  case tokens of
+  state <- ParserT @Unknown C.get
+  case stateTokens state of
     [] -> pure ()
     _rest -> throw ErrorInputLeft
 

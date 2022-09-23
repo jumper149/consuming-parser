@@ -1,12 +1,13 @@
 module Parser.Misc where
 
+import Parser.Core qualified as P
 import Parser.Core.Error qualified as P
 
-displayResult :: (Show a, Show e, Show t) => Either (P.Trace e) (a, [t]) -> String
+displayResult :: (Show a, Show e, Show t) => Either (P.Trace e) (a, P.State t) -> String
 displayResult x =
   case x of
     Left err -> "Failed to parse:\n" ++ displayTrace err
-    Right (val, tokens) -> "Parsed value: " ++ show val ++ "\nRemaining Tokens: " ++ show tokens ++ "\n"
+    Right (val, state) -> "Parsed value: " ++ show val ++ "\nFinal state: " ++ show state ++ "\n"
 
 displayTrace :: Show e => P.Trace e -> String
 displayTrace = \case
