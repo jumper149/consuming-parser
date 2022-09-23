@@ -19,36 +19,31 @@ deriving via Data.Functor.Compose.Compose m (Failable e) instance Applicative m 
 
 instance Monad m => Monad (FailableT e m) where
   ma >>= fma =
-    FailableT
-      ( runFailableT ma
-          >>= ( \case
-                  Failed e -> pure (Failed e)
-                  Succeeding x -> runFailableT (fma x)
-              )
-      )
+    FailableT $
+      runFailableT ma
+        >>= \case
+          Failed e -> pure $ Failed e
+          Succeeding x -> runFailableT $ fma x
 
 instance MonadTrans (FailableT e) where
-  lift ma = FailableT (fmap pure ma)
+  lift = FailableT . fmap pure
 
 instance MonadTransControl (FailableT e) where
   type StT (FailableT e) a = Failable e a
-  liftWith f = FailableT (fmap pure (f runFailableT))
+  liftWith f = FailableT $ pure <$> f runFailableT
   restoreT = FailableT
 
 instance (Applicative m, Semigroup e) => Alternative (FailableT e m) where
-  FailableT x <|> FailableT y =
-    FailableT (fmap (<|>) x <*> y)
+  FailableT x <|> FailableT y = FailableT $ (<|>) <$> x <*> y
 
 instance Monad m => C.MonadError e (FailableT e m) where
-  throwError e = FailableT (pure (C.throwError e))
+  throwError = FailableT . pure . C.throwError
   catchError e f =
-    FailableT
-      ( runFailableT e
-          >>= ( \case
-                  Failed err -> runFailableT (f err)
-                  val@(Succeeding _) -> pure val
-              )
-      )
+    FailableT $
+      runFailableT e
+        >>= \case
+          Failed err -> runFailableT (f err)
+          val@(Succeeding _) -> pure val
 
 deriving via
   FailableT e ((t2 :: (Type -> Type) -> Type -> Type) m)
