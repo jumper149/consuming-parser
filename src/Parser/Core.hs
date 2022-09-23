@@ -88,7 +88,7 @@ x >>= f = ParserT (unParserT x Prelude.>>= unParserT Prelude.. f)
 ParserT (ComposeT x) <|> ParserT (ComposeT y) = ParserT (ComposeT (descend ((Control.Applicative.<|>) (Ascend x) (Ascend y))))
 
 throw :: Prelude.Monad m => Error e -> ParserT c t e m a
-throw e = ParserT (C.throwError (TracePoint e))
+throw e = ParserT (C.gets statePosition Prelude.>>= \index -> C.throwError (TracePoint e index))
 
 catch :: Prelude.Monad m => ParserT c1 t e m a -> (Trace e -> ParserT c2 t e m a) -> ParserT (c1 && c2) t e m a
 catch throwing catching = ParserT (C.catchError (unParserT throwing) (unParserT Prelude.. catching))

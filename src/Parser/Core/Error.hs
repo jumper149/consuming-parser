@@ -1,11 +1,13 @@
 module Parser.Core.Error where
 
+import Parser.Core.Index
+
 import Data.Kind
 import GHC.Generics
 
 type Trace :: Type -> Type -- TODO: This is redundant.
 data Trace :: Type -> Type where
-  TracePoint :: Error e -> Trace e
+  TracePoint :: Error e -> Index -> Trace e
   TraceAppend :: Trace e -> Trace e -> Trace e
   deriving stock (Prelude.Eq, Generic, Prelude.Ord, Prelude.Read, Prelude.Show)
 

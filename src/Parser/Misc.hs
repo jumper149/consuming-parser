@@ -1,6 +1,7 @@
 module Parser.Misc where
 
 import Parser.Core.Error qualified as P
+import Parser.Core.Index qualified as P
 import Parser.Core.State qualified as P
 
 displayResult :: (Show a, Show e, Show t) => Either (P.Trace e) (a, P.State t) -> String
@@ -11,7 +12,7 @@ displayResult x =
 
 displayTrace :: Show e => P.Trace e -> String
 displayTrace = \case
-  P.TracePoint err -> displayError err ++ "\n"
+  P.TracePoint err index -> displayIndex index ++ ": " ++ displayError err ++ "\n"
   P.TraceAppend t1 t2 ->
     let str1 = displayTrace t1
         str2 = displayTrace t2
@@ -26,3 +27,11 @@ displayError = \case
   P.ErrorSatisfy -> "Satisfy"
   P.ErrorEqual -> "Equal"
   P.ErrorOneOf -> "OneOf"
+
+displayIndex :: P.Index -> String
+displayIndex = show . indexToInteger
+ where
+  indexToInteger :: P.Index -> Integer
+  indexToInteger = \case
+    P.Zero -> 0
+    P.Successor n -> succ $ indexToInteger n
