@@ -1,6 +1,5 @@
 module Data.Failable where
 
-import Control.Alternative qualified
 import Control.Monad.Error.Class qualified as C
 import Data.Kind
 import GHC.Generics
@@ -25,18 +24,18 @@ instance Monad (Failable e) where
       Failed e -> Failed e
       Succeeding b -> f b
 
-instance Semigroup e => Control.Alternative.Alternative (Failable e) where
-  x <|> y =
-    case x of
-      val@(Succeeding _) -> val
-      Failed xErr ->
-        case y of
-          val@(Succeeding _) -> val
-          Failed yErr -> Failed (xErr <> yErr)
-
 instance C.MonadError e (Failable e) where
   throwError = Failed
   catchError e f =
     case e of
       Failed err -> f err
       val@(Succeeding _) -> val
+
+chain :: (e -> e -> e) -> Failable e a -> Failable e a -> Failable e a
+chain combineError x y =
+  case x of
+    val@(Succeeding _) -> val
+    Failed xErr ->
+      case y of
+        val@(Succeeding _) -> val
+        Failed yErr -> Failed (xErr `combineError` yErr)

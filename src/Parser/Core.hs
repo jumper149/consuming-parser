@@ -5,12 +5,12 @@ module Parser.Core where
 import Parser.Consumption
 import Parser.Error
 
-import Control.Alternative qualified
 import Control.Monad.Error.Class qualified as C
 import Control.Monad.Identity qualified
 import Control.Monad.State.Class qualified as C
 import Control.Monad.Trans.Class qualified as C
 import Control.Monad.Trans.Compose
+import Control.Monad.Trans.Control qualified as C
 import Control.Monad.Trans.Elevator
 import Control.Monad.Trans.Failable qualified as T
 import Control.Monad.Trans.State qualified as T
@@ -82,7 +82,14 @@ pure = ParserT Prelude.. Prelude.pure
 x >>= f = ParserT (unParserT x Prelude.>>= unParserT Prelude.. f)
 
 (<|>) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m a -> ParserT (c1 && c2) t e m a
-ParserT (ComposeT x) <|> ParserT (ComposeT y) = ParserT (ComposeT (descend (Ascend x Control.Alternative.<|> Ascend y)))
+ParserT (ComposeT x) <|> ParserT (ComposeT y) = ParserT (ComposeT (descend (Ascend x `alternate'` Ascend y)))
+ where
+  alternate' ::
+    (Prelude.Monad m, Prelude.Monad (t (T.FailableT (Error e) m)), C.MonadTransControl t) =>
+    Elevator t (T.FailableT (Error e) m) a ->
+    Elevator t (T.FailableT (Error e) m) a ->
+    Elevator t (T.FailableT (Error e) m) a
+  alternate' a b = (C.restoreT Prelude.. Prelude.pure Prelude.=<<) Prelude.$ C.liftWith Prelude.$ \runT -> T.alternate (Prelude.<>) (runT a) (runT b)
 
 throw :: Prelude.Monad m => Error e -> ParserT c t e m a
 throw e = ParserT (C.throwError e)
