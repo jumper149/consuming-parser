@@ -20,6 +20,7 @@ library
     Parser.Core.Consumption
     Parser.Core.Error
     Parser.Core.Index
+    Parser.Core.State
     Parser.Misc
     Parser.Token.Char
   other-modules:

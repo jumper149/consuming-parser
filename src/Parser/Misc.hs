@@ -1,7 +1,7 @@
 module Parser.Misc where
 
-import Parser.Core qualified as P
 import Parser.Core.Error qualified as P
+import Parser.Core.State qualified as P
 
 displayResult :: (Show a, Show e, Show t) => Either (P.Trace e) (a, P.State t) -> String
 displayResult x =

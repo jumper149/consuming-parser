@@ -5,6 +5,7 @@ module Parser.Core where
 import Parser.Core.Consumption
 import Parser.Core.Error
 import Parser.Core.Index
+import Parser.Core.State
 
 import Control.Applicative qualified
 import Control.Monad.Error.Class qualified as C
@@ -16,15 +17,7 @@ import Control.Monad.Trans.Elevator
 import Control.Monad.Trans.Except qualified as T
 import Control.Monad.Trans.State qualified as T
 import Data.Kind
-import GHC.Generics
 import Prelude qualified
-
-type State :: Type -> Type
-data State t = MkState
-  { stateTokens :: [t]
-  , statePosition :: Index
-  }
-  deriving stock (Prelude.Eq, Generic, Prelude.Ord, Prelude.Read, Prelude.Show)
 
 -- * Parser
 
