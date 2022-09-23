@@ -36,7 +36,7 @@ type ParserT ::
   Type
 newtype ParserT c t e m a = ParserT {unParserT :: ComposeT (T.StateT (State t)) (T.ExceptT (Trace e)) m a}
 
-parseT :: ParserT c t e m a -> [t] -> m (Prelude.Either (Trace e) (a, (State t)))
+parseT :: ParserT c t e m a -> [t] -> m (Prelude.Either (Trace e) (a, State t))
 parseT parser tokens = runComposeT (`T.runStateT` state) T.runExceptT (unParserT parser)
  where
   state = MkState {stateTokens = tokens, statePosition = Zero}
