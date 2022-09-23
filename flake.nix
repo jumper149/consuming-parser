@@ -12,6 +12,14 @@
 
     overlays.default = final: prev: {
       haskellPackages = prev.haskell.packages.ghc924.extend (haskellFinal: haskellPrev: { # TODO: Using GHC 9.2.4.
+        graphmod = (haskellPrev.graphmod.overrideAttrs (oldAttrs: {
+          src = prev.fetchFromGitHub {
+            owner = "jumper149";
+            repo = "graphmod";
+            rev = "b684ce4d6af97179eccb65d2567d6165d43fa3e0";
+            sha256 = "sha256-I5OfUGV9TbxLCyc8LhdZODhw5EpJXyXeFdaN7gMmhC8=";
+          };
+        }));
       });
     };
 
@@ -71,6 +79,27 @@
         ];
         nativeBuildInputs = [
           haskellPackages.implicit-hie
+        ];
+      };
+
+    checks.x86_64-linux.graphmod =
+      with import nixpkgs { system = "x86_64-linux"; overlays = [ self.overlays.default ]; };
+      stdenv.mkDerivation {
+        name = "graphmod"; # TODO: Necessary to avoid segmentation fault.
+        src = ./.;
+        buildPhase = ''
+          graphmod > graphmod.out
+          dot -Tdot graphmod.out > graphmod.dot
+          dot -Tpdf graphmod.out > graphmod.pdf
+        '';
+        installPhase = ''
+          mkdir $out
+          cp graphmod.dot $out
+          cp graphmod.pdf $out
+        '';
+        nativeBuildInputs = [
+          haskellPackages.graphmod
+          pkgs.graphviz
         ];
       };
 
