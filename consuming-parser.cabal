@@ -27,7 +27,6 @@ library
     , base
     , containers
     , deriving-trans
-    , monad-control
     , mtl
     , transformers
   hs-source-dirs: src

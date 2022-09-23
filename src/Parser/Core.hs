@@ -5,12 +5,12 @@ module Parser.Core where
 import Parser.Consumption
 import Parser.Error
 
+import Control.Applicative qualified
 import Control.Monad.Error.Class qualified as C
 import Control.Monad.Identity qualified
 import Control.Monad.State.Class qualified as C
 import Control.Monad.Trans.Class qualified as C
 import Control.Monad.Trans.Compose
-import Control.Monad.Trans.Control qualified as C
 import Control.Monad.Trans.Elevator
 import Control.Monad.Trans.Except qualified as T
 import Control.Monad.Trans.State qualified as T
@@ -32,9 +32,9 @@ type ParserT ::
   (Type -> Type) -> -- m
   Type -> -- a
   Type
-newtype ParserT c t e m a = ParserT {unParserT :: ComposeT (T.StateT [t]) (T.ExceptT (Error e)) m a}
+newtype ParserT c t e m a = ParserT {unParserT :: ComposeT (T.StateT [t]) (T.ExceptT (Trace e)) m a}
 
-parseT :: ParserT c t e m a -> [t] -> m (Prelude.Either (Error e) (a, [t]))
+parseT :: ParserT c t e m a -> [t] -> m (Prelude.Either (Trace e) (a, [t]))
 parseT parser tokens = runComposeT (`T.runStateT` tokens) T.runExceptT (unParserT parser)
 
 -- | A pure monadic parser using `ParserT`.
@@ -46,7 +46,7 @@ type Parser ::
   Type
 type Parser c t e a = ParserT c t e Control.Monad.Identity.Identity a
 
-parse :: Parser c t e a -> [t] -> Prelude.Either (Error e) (a, [t])
+parse :: Parser c t e a -> [t] -> Prelude.Either (Trace e) (a, [t])
 parse parser tokens = Control.Monad.Identity.runIdentity (parseT parser tokens)
 
 -- * Core primitives
@@ -81,38 +81,12 @@ pure = ParserT Prelude.. Prelude.pure
 x >>= f = ParserT (unParserT x Prelude.>>= unParserT Prelude.. f)
 
 (<|>) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m a -> ParserT (c1 && c2) t e m a
-ParserT (ComposeT x) <|> ParserT (ComposeT y) = ParserT (ComposeT (descend (Ascend x `alternate'` Ascend y)))
- where
-  alternate' ::
-    (Prelude.Monad m, Prelude.Monad (t (T.ExceptT (Error e) m)), C.MonadTransControl t) =>
-    Elevator t (T.ExceptT (Error e) m) a ->
-    Elevator t (T.ExceptT (Error e) m) a ->
-    Elevator t (T.ExceptT (Error e) m) a
-  alternate' a b = (C.restoreT Prelude.. Prelude.pure Prelude.=<<) (C.liftWith (\runT -> alternate (Prelude.<>) (runT a) (runT b)))
-  alternate ::
-    Prelude.Applicative m =>
-    (Error e -> Error e -> Error e) ->
-    T.ExceptT (Error e) m a ->
-    T.ExceptT (Error e) m a ->
-    T.ExceptT (Error e) m a
-  alternate combine a b = T.ExceptT (chain combine Prelude.<$> T.runExceptT a Prelude.<*> T.runExceptT b)
-  chain ::
-    (Error e -> Error e -> Error e) ->
-    Prelude.Either (Error e) a ->
-    Prelude.Either (Error e) a ->
-    Prelude.Either (Error e) a
-  chain combine a b =
-    case a of
-      val@(Prelude.Right _) -> val
-      Prelude.Left aErr ->
-        case b of
-          val@(Prelude.Right _) -> val
-          Prelude.Left bErr -> Prelude.Left (aErr `combine` bErr)
+ParserT (ComposeT x) <|> ParserT (ComposeT y) = ParserT (ComposeT (descend ((Control.Applicative.<|>) (Ascend x) (Ascend y))))
 
 throw :: Prelude.Monad m => Error e -> ParserT c t e m a
-throw e = ParserT (C.throwError e)
+throw e = ParserT (C.throwError (TracePoint e))
 
-catch :: Prelude.Monad m => ParserT c1 t e m a -> (Error e -> ParserT c2 t e m a) -> ParserT (c1 && c2) t e m a
+catch :: Prelude.Monad m => ParserT c1 t e m a -> (Trace e -> ParserT c2 t e m a) -> ParserT (c1 && c2) t e m a
 catch throwing catching = ParserT (C.catchError (unParserT throwing) (unParserT Prelude.. catching))
 
 forget :: ParserT c t e m a -> ParserT Unknown t e m a
