@@ -16,9 +16,9 @@ extra-source-files:  CHANGELOG.md
 library
   exposed-modules:
     Parser.Combinators
-    Parser.Consumption
     Parser.Core
-    Parser.Error
+    Parser.Core.Consumption
+    Parser.Core.Error
     Parser.Misc
     Parser.Token.Char
   other-modules:

@@ -1,4 +1,4 @@
-module Parser.Error where
+module Parser.Core.Error where
 
 import Data.Kind
 import GHC.Generics

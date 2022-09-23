@@ -2,8 +2,8 @@
 
 module Parser.Core where
 
-import Parser.Consumption
-import Parser.Error
+import Parser.Core.Consumption
+import Parser.Core.Error
 
 import Control.Applicative qualified
 import Control.Monad.Error.Class qualified as C

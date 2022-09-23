@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeFamilies #-}
 
-module Parser.Consumption where
+module Parser.Core.Consumption where
 
 import Data.Kind
 

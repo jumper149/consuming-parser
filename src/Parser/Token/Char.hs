@@ -3,9 +3,9 @@
 module Parser.Token.Char where
 
 import Parser.Combinators qualified as P
-import Parser.Consumption qualified as P
 import Parser.Core qualified as P
-import Parser.Error qualified as P
+import Parser.Core.Consumption qualified as P
+import Parser.Core.Error qualified as P
 
 import Data.List.NonEmpty qualified as NonEmpty
 
