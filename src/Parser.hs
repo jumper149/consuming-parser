@@ -85,19 +85,10 @@ x >>= f = ParserT (unParserT x Prelude.>>= unParserT Prelude.. f)
 ParserT (ComposeT x) <|> ParserT (ComposeT y) = ParserT (ComposeT (descend (Ascend x Control.Alternative.<|> Ascend y)))
 
 throw :: Prelude.Monad m => Error e -> ParserT c t e m a
-throw e = ParserT (ComposeT (descend (C.throwError e)))
+throw e = ParserT (C.throwError e)
 
 catch :: Prelude.Monad m => ParserT c1 t e m a -> (Error e -> ParserT c2 t e m a) -> ParserT (c1 && c2) t e m a
-catch throwing catching =
-  ParserT
-    ( ComposeT
-        ( descend
-            ( C.catchError
-                (Ascend (deComposeT (unParserT throwing)))
-                (Ascend Prelude.. deComposeT Prelude.. unParserT Prelude.. catching)
-            )
-        )
-    )
+catch throwing catching = ParserT (C.catchError (unParserT throwing) (unParserT Prelude.. catching))
 
 forget :: ParserT c t e m a -> ParserT Unknown t e m a
 forget = ParserT Prelude.. unParserT

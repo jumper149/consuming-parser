@@ -5,6 +5,7 @@ module Control.Monad.Trans.Failable where
 import Control.Alternative
 import Control.Monad.Error.Class qualified as C
 import Control.Monad.Trans.Class
+import Control.Monad.Trans.Compose
 import Control.Monad.Trans.Control
 import Data.Failable
 import Data.Functor.Compose qualified
@@ -48,3 +49,8 @@ instance Monad m => C.MonadError e (FailableT e m) where
                   val@(Succeeding _) -> pure val
               )
       )
+
+deriving via
+  FailableT e ((t2 :: (Type -> Type) -> Type -> Type) m)
+  instance
+    Monad (t2 m) => C.MonadError e (ComposeT (FailableT e) t2 m)
