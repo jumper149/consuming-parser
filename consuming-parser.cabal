@@ -15,8 +15,6 @@ extra-source-files:  CHANGELOG.md
 
 library
   exposed-modules:
-    Control.Monad.Trans.Failable
-    Data.Failable
     Parser.Combinators
     Parser.Consumption
     Parser.Core

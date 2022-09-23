@@ -2,13 +2,11 @@ module Parser.Misc where
 
 import Parser.Error qualified as P
 
-import Data.Failable
-
-displayResult :: (Show a, Show e, Show t) => Failable (P.Error e) (a, [t]) -> String
+displayResult :: (Show a, Show e, Show t) => Either (P.Error e) (a, [t]) -> String
 displayResult x =
   case x of
-    Failed err -> "Failed to parse:\n" ++ displayError err
-    Succeeding (val, tokens) -> "Parsed value: " ++ show val ++ "\nRemaining Tokens: " ++ show tokens ++ "\n"
+    Left err -> "Failed to parse:\n" ++ displayError err
+    Right (val, tokens) -> "Parsed value: " ++ show val ++ "\nRemaining Tokens: " ++ show tokens ++ "\n"
 
 displayError :: Show e => P.Error e -> String
 displayError = \case
