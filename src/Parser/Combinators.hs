@@ -2,8 +2,8 @@
 
 module Parser.Combinators where
 
-import Parser qualified as P
 import Parser.Consumption qualified as P
+import Parser.Core qualified as P
 import Parser.Error qualified as P
 
 import Data.Bifunctor

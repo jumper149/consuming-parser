@@ -1,6 +1,6 @@
 {-# LANGUAGE RebindableSyntax #-}
 
-module Parser where
+module Parser.Core where
 
 import Parser.Consumption
 import Parser.Error

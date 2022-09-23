@@ -18,9 +18,9 @@ library
     Control.Alternative
     Control.Monad.Trans.Failable
     Data.Failable
-    Parser
     Parser.Combinators
     Parser.Consumption
+    Parser.Core
     Parser.Error
     Parser.Misc
     Parser.Token.Char
