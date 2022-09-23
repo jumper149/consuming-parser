@@ -7,7 +7,7 @@ import GHC.Generics
 
 type Trace :: Type -> Type -- TODO: This is redundant.
 data Trace :: Type -> Type where
-  TracePoint :: Error e -> Index -> Trace e
+  TracePoint :: Index -> Error e -> Trace e
   TraceAppend :: Trace e -> Trace e -> Trace e
   deriving stock (Prelude.Eq, Generic, Prelude.Ord, Prelude.Read, Prelude.Show)
 

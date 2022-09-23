@@ -12,7 +12,7 @@ displayResult x =
 
 displayTrace :: Show e => P.Trace e -> String
 displayTrace = \case
-  P.TracePoint err index -> displayIndex index ++ ": " ++ displayError err ++ "\n"
+  P.TracePoint index err -> displayIndex index ++ ": " ++ displayError err ++ "\n"
   P.TraceAppend t1 t2 ->
     let str1 = displayTrace t1
         str2 = displayTrace t2
