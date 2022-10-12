@@ -24,6 +24,7 @@ library
     Parser.Misc
     Parser.Token.Char
   other-modules:
+    Parser.Example.Json
     Parser.Example.Parens
   build-depends:
     , base
