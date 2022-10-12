@@ -72,9 +72,6 @@ newtype Text = MkText String
 type Error :: Type
 type Error = String
 
-overwriteError :: Error -> P.Parser c Char Error a -> P.Parser c Char Error a
-overwriteError e p = p `P.catch` (\_trace -> (P.throw $ P.ErrorCustom e :: P.Parser P.Consuming Char Error a))
-
 jsonError :: Error -> P.Parser c Char Error a
 jsonError = P.throw . P.ErrorCustom . ("JSON: " ++)
 
@@ -159,7 +156,7 @@ pNull = (P.equal 'n' P.>> P.equal 'u' P.>> P.equal 'l' P.>> P.equal 'l') P.<|> j
 pString :: P.Parser P.Consuming Char Error String
 pString = P.do
   P.equal '"'
-  (text, _) <- (pRegular P.<|> pEscaped) `P.manyTill` (P.equal '"')
+  (text, _) <- (pRegular P.<|> pEscaped) `P.manyTill` P.equal '"'
   P.pure text
  where
   pRegular :: P.Parser P.Consuming Char Error Char
