@@ -6,6 +6,7 @@ import Parser.Combinators qualified as P
 import Parser.Core qualified as P
 import Parser.Core.Consumption qualified as P
 import Parser.Core.Error qualified as P
+import Parser.TypeError qualified as P ()
 
 import Data.Kind
 import Data.List.NonEmpty qualified as NE

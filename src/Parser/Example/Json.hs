@@ -6,6 +6,7 @@ import Parser.Combinators qualified as P
 import Parser.Core qualified as P
 import Parser.Core.Consumption qualified as P
 import Parser.Core.Error qualified as P
+import Parser.TypeError qualified as P ()
 
 import Data.Kind
 
@@ -233,3 +234,6 @@ pString = P.do
 
 pWhitespace :: P.Parser P.Unknown Char Error ()
 pWhitespace = P.void $ P.many $ P.oneOf ['\x0020', '\x000A', '\x000D', '\x0009']
+
+f :: P.Parser P.Unknown Char Error ()
+f = P.void $ P.many $ P.oneOf ['\x0020', '\x000A', '\x000D', '\x0009']
