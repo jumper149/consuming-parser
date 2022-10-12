@@ -23,6 +23,7 @@ library
     Parser.Core.State
     Parser.Misc
     Parser.Token.Char
+    Parser.TypeError
   other-modules:
     Parser.Example.Json
     Parser.Example.Parens
