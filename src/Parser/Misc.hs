@@ -4,23 +4,16 @@ import Parser.Core.Error qualified as P
 import Parser.Core.Index qualified as P
 import Parser.Core.State qualified as P
 
-import Data.Tree
-
 displayResult :: (Show a, Show e, Show t) => Either (P.Trace e) (a, P.State t) -> String
 displayResult x =
   case x of
     Left trace -> "Failed to parse:\n" ++ displayTrace trace
-    Right (val, state) -> "Parsed value: " ++ show val ++ "\nFinal state: " ++ show state ++ "\n"
+    Right (val, state) -> "Parsed value: " ++ show val ++ "\nPosition: " ++ displayIndex (P.statePosition state) ++ "\nRemaining Tokens: " ++ show (P.stateTokens state) ++ "\n"
 
 displayTrace :: Show e => P.Trace e -> String
-displayTrace = drawTree . traceToTree
- where
-  traceToTree :: Show e => P.Trace e -> Tree String
-  traceToTree = \case
-    P.TracePoint index err -> Node {rootLabel = displayIndex index ++ ": " ++ displayError err, subForest = []}
-    P.TraceAppend t1 t2 ->
-      case traceToTree t2 of
-        Node {rootLabel, subForest} -> Node {rootLabel, subForest = subForest ++ [traceToTree t1]}
+displayTrace = \case
+  P.TracePoint index err -> displayIndex index ++ ": " ++ displayError err ++ "\n"
+  P.TraceAppend t1 t2 -> displayTrace t2 ++ unlines (("  " ++) <$> lines (displayTrace t1))
 
 displayError :: Show e => P.Error e -> String
 displayError = \case
