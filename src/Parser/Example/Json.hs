@@ -17,23 +17,23 @@ data Value where
   MkValueNumber :: () -> Value
   MkValueBoolean :: Bool -> Value
   MkValueNull :: Value
-  deriving stock Show
+  deriving stock (Show)
 
 type Object :: Type
 data Object where
   MkObjectEmpty :: Object
   MkObjectCons :: String -> Value -> Object -> Object
-  deriving stock Show
+  deriving stock (Show)
 
 type Array :: Type
 data Array where
   MkArrayEmpty :: Array
   MkArrayCons :: Value -> Array -> Array
-  deriving stock Show
+  deriving stock (Show)
 
 type Text :: Type
 newtype Text = MkText String
-  deriving stock Show
+  deriving stock (Show)
 
 -- number
 --     integer fraction exponent
@@ -83,15 +83,16 @@ pJson = pValue P.<* P.end
 
 pValue :: P.Parser P.Consuming Char Error Value
 pValue = P.do
-    pWhitespace
-    value <- (MkValueObject P.<$> pObject)
+  pWhitespace
+  value <-
+    (MkValueObject P.<$> pObject)
       P.<|> (MkValueArray P.<$> pArray)
       P.<|> (MkValueText P.<$> pText)
       P.<|> (MkValueNumber P.<$> pNumber)
       P.<|> (MkValueBoolean P.<$> pBoolean)
       P.<|> (MkValueNull P.<$ pNull)
-    pWhitespace
-    P.pure value
+  pWhitespace
+  P.pure value
 
 pObject :: P.Parser P.Consuming Char Error Object
 pObject = pObject' P.<|> jsonError "Object"
@@ -162,21 +163,23 @@ pString = P.do
   P.pure text
  where
   pRegular :: P.Parser P.Consuming Char Error Char
-  pRegular = P.token P.>>= \case
-    '\\' -> jsonError "Backslash"
-    '"' -> jsonError "Quotation mark"
-    x -> P.pure x
+  pRegular =
+    P.token P.>>= \case
+      '\\' -> jsonError "Backslash"
+      '"' -> jsonError "Quotation mark"
+      x -> P.pure x
   pEscaped :: P.Parser P.Consuming Char Error Char
-  pEscaped = (P.equal '\\' P.>>) $
-          pQuotationMark
-    P.<|> pBackslash
-    P.<|> pSlash
-    P.<|> pBackspace
-    P.<|> pFormfeed
-    P.<|> pLinefeed
-    P.<|> pCarriageReturn
-    P.<|> pTab
-    P.<|> pUnicode
+  pEscaped =
+    (P.equal '\\' P.>>) $
+      pQuotationMark
+        P.<|> pBackslash
+        P.<|> pSlash
+        P.<|> pBackspace
+        P.<|> pFormfeed
+        P.<|> pLinefeed
+        P.<|> pCarriageReturn
+        P.<|> pTab
+        P.<|> pUnicode
    where
     pQuotationMark :: P.Parser P.Consuming Char Error Char
     pQuotationMark = P.equal '"' P.>> P.pure '"'
@@ -205,30 +208,31 @@ pString = P.do
       P.pure $ toEnum num
      where
       pHexDigit :: P.Parser P.Consuming Char Error Int
-      pHexDigit = P.token P.>>= \case
-        '0' -> P.pure 0
-        '1' -> P.pure 1
-        '2' -> P.pure 2
-        '3' -> P.pure 3
-        '4' -> P.pure 4
-        '5' -> P.pure 5
-        '6' -> P.pure 6
-        '7' -> P.pure 7
-        '8' -> P.pure 8
-        '9' -> P.pure 9
-        'a' -> P.pure 10
-        'A' -> P.pure 10
-        'b' -> P.pure 11
-        'B' -> P.pure 11
-        'c' -> P.pure 12
-        'C' -> P.pure 12
-        'd' -> P.pure 13
-        'D' -> P.pure 13
-        'e' -> P.pure 14
-        'E' -> P.pure 14
-        'f' -> P.pure 15
-        'F' -> P.pure 15
-        _ -> jsonError "Hex digit"
+      pHexDigit =
+        P.token P.>>= \case
+          '0' -> P.pure 0
+          '1' -> P.pure 1
+          '2' -> P.pure 2
+          '3' -> P.pure 3
+          '4' -> P.pure 4
+          '5' -> P.pure 5
+          '6' -> P.pure 6
+          '7' -> P.pure 7
+          '8' -> P.pure 8
+          '9' -> P.pure 9
+          'a' -> P.pure 10
+          'A' -> P.pure 10
+          'b' -> P.pure 11
+          'B' -> P.pure 11
+          'c' -> P.pure 12
+          'C' -> P.pure 12
+          'd' -> P.pure 13
+          'D' -> P.pure 13
+          'e' -> P.pure 14
+          'E' -> P.pure 14
+          'f' -> P.pure 15
+          'F' -> P.pure 15
+          _ -> jsonError "Hex digit"
 
 pWhitespace :: P.Parser P.Unknown Char Error ()
-pWhitespace = P.void $ P.many $ P.oneOf ['\x0020', '\x000A', '\x000D', '\x0009' ]
+pWhitespace = P.void $ P.many $ P.oneOf ['\x0020', '\x000A', '\x000D', '\x0009']
