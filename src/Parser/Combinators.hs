@@ -54,14 +54,14 @@ some p = P.do
 manyTill ::
   Monad m =>
   P.ParserT P.Consuming t e m a ->
-  P.ParserT P.Unknown t e m b ->
-  P.ParserT P.Unknown t e m ([a], b)
+  P.ParserT P.Consuming t e m b ->
+  P.ParserT P.Consuming t e m ([a], b)
 manyTill p c = ([],) P.<$> c `P.catch` \_err -> first NE.toList P.<$> someTill p c
 
 someTill ::
   Monad m =>
   P.ParserT P.Consuming t e m a ->
-  P.ParserT P.Unknown t e m b ->
+  P.ParserT P.Consuming t e m b ->
   P.ParserT P.Consuming t e m (NE.NonEmpty a, b)
 someTill p c = P.do
   x <- p
