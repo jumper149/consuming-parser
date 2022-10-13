@@ -16,10 +16,10 @@ throwOn :: Monad m => P.Error e -> P.ParserT P.Consuming t e m a -> P.ParserT P.
 throwOn e p = p P.<|> P.throw e
 
 openingParser :: Monad m => P.ParserT P.Consuming Char String m ()
-openingParser = P.equal '(' P.<|> P.throw (P.ErrorCustom "No opening parens.")
+openingParser = P.match '(' P.<|> P.throw (P.ErrorCustom "No opening parens.")
 
 closingParser :: Monad m => P.ParserT P.Consuming Char String m ()
-closingParser = P.equal ')' P.<|> P.throw (P.ErrorCustom "No closing parens.")
+closingParser = P.match ')' P.<|> P.throw (P.ErrorCustom "No closing parens.")
 
 type Tree :: Type
 data Tree

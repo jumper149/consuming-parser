@@ -20,8 +20,8 @@ satisfy p =
       else P.throw P.ErrorUnexpectedToken
     P.<|> P.throw P.ErrorSatisfy
 
-equal :: (Eq t, Monad m) => t -> P.ParserT P.Consuming t e m ()
-equal t = void (satisfy (== t)) P.<|> P.throw P.ErrorEqual
+match :: (Eq t, Monad m) => t -> P.ParserT P.Consuming t e m ()
+match t = void (satisfy (== t)) P.<|> P.throw P.ErrorEqual
 
 oneOf :: (Foldable f, Eq t, Monad m) => f t -> P.ParserT P.Consuming t e m t
 oneOf ts = satisfy (`elem` ts) P.<|> P.throw P.ErrorOneOf

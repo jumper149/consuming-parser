@@ -97,7 +97,7 @@ pObject = pObject' P.<|> jsonError "Object"
 
 pObject' :: P.Parser P.Consuming Char Error Object
 pObject' = P.do
-  P.equal '{'
+  P.match '{'
   (pWhitespace P.>> pObjectEnd) P.<|> pObjectContent
  where
   pObjectContent :: P.Parser P.Consuming Char Error Object
@@ -105,13 +105,13 @@ pObject' = P.do
     pWhitespace
     key <- pKey
     pWhitespace
-    P.equal ':'
+    P.match ':'
     value <- pValue
-    object <- pObjectEnd P.<|> (P.equal ',' P.>> pObjectContent)
+    object <- pObjectEnd P.<|> (P.match ',' P.>> pObjectContent)
     P.pure $ MkObjectCons key value object
   pObjectEnd :: P.Parser P.Consuming Char Error Object
   pObjectEnd = P.do
-    P.equal '}'
+    P.match '}'
     P.pure MkObjectEmpty
 
 pKey :: P.Parser P.Consuming Char Error String
@@ -122,17 +122,17 @@ pArray = pArray' P.<|> jsonError "Array"
 
 pArray' :: P.Parser P.Consuming Char Error Array
 pArray' = P.do
-  P.equal '['
+  P.match '['
   (pWhitespace P.>> pArrayEnd) P.<|> pArrayContent
  where
   pArrayContent :: P.Parser P.Consuming Char Error Array
   pArrayContent = P.do
     value <- pValue
-    array <- pArrayEnd P.<|> (P.equal ',' P.>> pArrayContent)
+    array <- pArrayEnd P.<|> (P.match ',' P.>> pArrayContent)
     P.pure $ MkArrayCons value array
   pArrayEnd :: P.Parser P.Consuming Char Error Array
   pArrayEnd = P.do
-    P.equal ']'
+    P.match ']'
     P.pure MkArrayEmpty
 
 pText :: P.Parser P.Consuming Char Error Text
@@ -146,18 +146,18 @@ pBoolean :: P.Parser P.Consuming Char Error Bool
 pBoolean = ((pFalse P.>> P.pure False) P.<|> (pTrue P.>> P.pure True)) P.<|> jsonError "Boolean"
 
 pFalse :: P.Parser P.Consuming Char Error ()
-pFalse = (P.equal 'f' P.>> P.equal 'a' P.>> P.equal 'l' P.>> P.equal 's' P.>> P.equal 'e') P.<|> jsonError "False"
+pFalse = (P.match 'f' P.>> P.match 'a' P.>> P.match 'l' P.>> P.match 's' P.>> P.match 'e') P.<|> jsonError "False"
 
 pTrue :: P.Parser P.Consuming Char Error ()
-pTrue = (P.equal 't' P.>> P.equal 'r' P.>> P.equal 'u' P.>> P.equal 'e') P.<|> jsonError "True"
+pTrue = (P.match 't' P.>> P.match 'r' P.>> P.match 'u' P.>> P.match 'e') P.<|> jsonError "True"
 
 pNull :: P.Parser P.Consuming Char Error ()
-pNull = (P.equal 'n' P.>> P.equal 'u' P.>> P.equal 'l' P.>> P.equal 'l') P.<|> jsonError "Null"
+pNull = (P.match 'n' P.>> P.match 'u' P.>> P.match 'l' P.>> P.match 'l') P.<|> jsonError "Null"
 
 pString :: P.Parser P.Consuming Char Error String
 pString = P.do
-  P.equal '"'
-  (text, _) <- (pRegular P.<|> pEscaped) `P.manyTill` P.equal '"'
+  P.match '"'
+  (text, _) <- (pRegular P.<|> pEscaped) `P.manyTill` P.match '"'
   P.pure text
  where
   pRegular :: P.Parser P.Consuming Char Error Char
@@ -168,7 +168,7 @@ pString = P.do
       x -> P.pure x
   pEscaped :: P.Parser P.Consuming Char Error Char
   pEscaped =
-    (P.equal '\\' P.>>) $
+    (P.match '\\' P.>>) $
       pQuotationMark
         P.<|> pBackslash
         P.<|> pSlash
@@ -180,24 +180,24 @@ pString = P.do
         P.<|> pUnicode
    where
     pQuotationMark :: P.Parser P.Consuming Char Error Char
-    pQuotationMark = P.equal '"' P.>> P.pure '"'
+    pQuotationMark = P.match '"' P.>> P.pure '"'
     pBackslash :: P.Parser P.Consuming Char Error Char
-    pBackslash = P.equal '\\' P.>> P.pure '\\'
+    pBackslash = P.match '\\' P.>> P.pure '\\'
     pSlash :: P.Parser P.Consuming Char Error Char
-    pSlash = P.equal '/' P.>> P.pure '/'
+    pSlash = P.match '/' P.>> P.pure '/'
     pBackspace :: P.Parser P.Consuming Char Error Char
-    pBackspace = P.equal 'b' P.>> P.pure '\b'
+    pBackspace = P.match 'b' P.>> P.pure '\b'
     pFormfeed :: P.Parser P.Consuming Char Error Char
-    pFormfeed = P.equal 'f' P.>> P.pure '\f'
+    pFormfeed = P.match 'f' P.>> P.pure '\f'
     pLinefeed :: P.Parser P.Consuming Char Error Char
-    pLinefeed = P.equal 'n' P.>> P.pure '\n'
+    pLinefeed = P.match 'n' P.>> P.pure '\n'
     pCarriageReturn :: P.Parser P.Consuming Char Error Char
-    pCarriageReturn = P.equal 'r' P.>> P.pure '\r'
+    pCarriageReturn = P.match 'r' P.>> P.pure '\r'
     pTab :: P.Parser P.Consuming Char Error Char
-    pTab = P.equal 't' P.>> P.pure '\t'
+    pTab = P.match 't' P.>> P.pure '\t'
     pUnicode :: P.Parser P.Consuming Char Error Char
     pUnicode = P.do
-      P.equal 'u'
+      P.match 'u'
       x1 <- pHexDigit
       x2 <- pHexDigit
       x3 <- pHexDigit

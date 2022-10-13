@@ -10,7 +10,7 @@ import Parser.Core.Error qualified as P
 import Data.List.NonEmpty qualified as NonEmpty
 
 newline :: Monad m => P.ParserT P.Consuming Char () m ()
-newline = P.equal '\n' P.<|> P.throw (P.ErrorCustom ())
+newline = P.match '\n' P.<|> P.throw (P.ErrorCustom ())
 
 digit :: Monad m => P.ParserT P.Consuming Char () m Char
 digit = P.do
@@ -34,7 +34,7 @@ number = (NonEmpty.toList P.<$> P.some digit) P.<* P.end
 floating :: Monad m => P.ParserT P.Consuming Char () m String
 floating = P.do
   wholes <- NonEmpty.toList P.<$> P.some digit
-  P.equal '.'
+  P.match '.'
   fractions <- NonEmpty.toList P.<$> P.some digit
   P.end
   P.pure $ wholes ++ "." ++ fractions
