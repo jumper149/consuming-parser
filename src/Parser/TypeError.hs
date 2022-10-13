@@ -17,7 +17,7 @@ type UnsupportedParametricFunctor :: ErrorMessage -> ErrorMessage
 type UnsupportedParametricFunctor shownType =
   Text "‘" :<>: ShowType P.ParserT :<>: Text "’ doesn't support the class"
     :$$: Text "  ‘" :<>: shownType :<>: Text "’"
-    :$$: Text "Try to use specialised primitives"
+    :$$: Text "Try to use specialised primitives instead"
 
 instance TypeError (UnsupportedParametricFunctor (ShowType Functor)) => Functor (P.ParserT c t e m)
 instance TypeError (UnsupportedParametricFunctor (ShowType Applicative)) => Applicative (P.ParserT c t e m)
