@@ -27,6 +27,7 @@ library
   other-modules:
     Parser.Example.Json
     Parser.Example.Parens
+    Tracer
   build-depends:
     , base
     , containers
