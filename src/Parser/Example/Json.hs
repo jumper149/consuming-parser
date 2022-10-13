@@ -16,7 +16,7 @@ data Value where
   MkValueObject :: Object -> Value
   MkValueArray :: Array -> Value
   MkValueText :: Text -> Value
-  MkValueNumber :: Scientific -> Value
+  MkValueNumber :: Number -> Value
   MkValueBoolean :: Bool -> Value
   MkValueNull :: Value
   deriving stock (Show)
@@ -51,8 +51,8 @@ data Digit where
   MkDigit9 :: Digit
   deriving stock (Show)
 
-type Scientific :: Type
-data Scientific = MkScientific
+type Number :: Type
+data Number = MkNumber
   { scientificIntegralDigits :: [Digit]
   , scientificFloatingDigits :: Maybe (NE.NonEmpty Digit)
   , scientificExponent :: Maybe Integer
@@ -128,7 +128,7 @@ pArray' = P.do
 pText :: P.Parser P.Consuming Char Error Text
 pText = (MkText P.<$> pString) P.<|> jsonError "Text"
 
-pNumber :: P.Parser P.Consuming Char Error Scientific
+pNumber :: P.Parser P.Consuming Char Error Number
 pNumber = P.do
   scientificPositive <- (P.match '-' P.>> P.pure False) `P.catch` \_err -> P.pure True
   scientificIntegralDigits <-
@@ -152,7 +152,7 @@ pNumber = P.do
   scientificFloatingDigits <- P.optional pFraction
   scientificExponent <- P.optional pExponent
   P.pure
-    MkScientific
+    MkNumber
       { scientificIntegralDigits
       , scientificFloatingDigits
       , scientificExponent
