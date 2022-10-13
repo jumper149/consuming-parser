@@ -15,9 +15,9 @@ import Prelude
 
 type UnsupportedParametricFunctor :: ErrorMessage -> ErrorMessage
 type UnsupportedParametricFunctor shownType =
-  Text "Parametric Functors such as ‘" :<>: ShowType P.ParserT :<>: Text "’ are not supported by the class"
+  Text "‘" :<>: ShowType P.ParserT :<>: Text "’ doesn't support the class"
     :$$: Text "  ‘" :<>: shownType :<>: Text "’"
-    :$$: Text "Try to use the specialised primitives"
+    :$$: Text "Try to use specialised primitives"
 
 instance TypeError (UnsupportedParametricFunctor (ShowType Functor)) => Functor (P.ParserT c t e m)
 instance TypeError (UnsupportedParametricFunctor (ShowType Applicative)) => Applicative (P.ParserT c t e m)
