@@ -9,13 +9,14 @@ import Parser.Core.Error qualified as P
 import Parser.TypeError qualified as P ()
 
 import Data.Kind
+import Data.List.NonEmpty qualified as NE
 
 type Value :: Type
 data Value where
   MkValueObject :: Object -> Value
   MkValueArray :: Array -> Value
   MkValueText :: Text -> Value
-  MkValueNumber :: () -> Value
+  MkValueNumber :: Scientific -> Value
   MkValueBoolean :: Bool -> Value
   MkValueNull :: Value
   deriving stock (Show)
@@ -36,39 +37,28 @@ type Text :: Type
 newtype Text = MkText String
   deriving stock (Show)
 
--- number
---     integer fraction exponent
+type Digit :: Type
+data Digit where
+  MkDigit0 :: Digit
+  MkDigit1 :: Digit
+  MkDigit2 :: Digit
+  MkDigit3 :: Digit
+  MkDigit4 :: Digit
+  MkDigit5 :: Digit
+  MkDigit6 :: Digit
+  MkDigit7 :: Digit
+  MkDigit8 :: Digit
+  MkDigit9 :: Digit
+  deriving stock (Show)
 
--- integer
---     digit
---     onenine digits
---     '-' digit
---     '-' onenine digits
-
--- digits
---     digit
---     digit digits
-
--- digit
---     '0'
---     onenine
-
--- onenine
---     '1' . '9'
-
--- fraction
---     ""
---     '.' digits
-
--- exponent
---     ""
---     'E' sign digits
---     'e' sign digits
-
--- sign
---     ""
---     '+'
---     '-'
+type Scientific :: Type
+data Scientific = MkScientific
+  { scientificIntegralDigits :: [Digit]
+  , scientificFloatingDigits :: Maybe (NE.NonEmpty Digit)
+  , scientificExponent :: Maybe Integer
+  , scientificPositive :: Bool
+  }
+  deriving stock (Show)
 
 type Error :: Type
 type Error = String
@@ -138,9 +128,91 @@ pArray' = P.do
 pText :: P.Parser P.Consuming Char Error Text
 pText = (MkText P.<$> pString) P.<|> jsonError "Text"
 
--- TODO: Implement.
-pNumber :: P.Parser P.Consuming Char Error ()
-pNumber = jsonError "Number"
+pNumber :: P.Parser P.Consuming Char Error Scientific
+pNumber = P.do
+  scientificPositive <- (P.match '-' P.>> P.pure False) `P.catch` \_err -> P.pure True
+  scientificIntegralDigits <-
+    (P.match '0' P.>> P.pure [MkDigit0]) P.<|> P.do
+      let pOneToNine :: P.Parser P.Consuming Char Error Digit
+          pOneToNine =
+            P.token P.>>= \case
+              '1' -> P.pure MkDigit1
+              '2' -> P.pure MkDigit2
+              '3' -> P.pure MkDigit3
+              '4' -> P.pure MkDigit4
+              '5' -> P.pure MkDigit5
+              '6' -> P.pure MkDigit6
+              '7' -> P.pure MkDigit7
+              '8' -> P.pure MkDigit8
+              '9' -> P.pure MkDigit9
+              _ -> jsonError "One to Nine"
+      leadingDigit <- pOneToNine
+      digits <- P.many pDigit
+      P.pure $ leadingDigit : digits
+  scientificFloatingDigits <- P.optional pFraction
+  scientificExponent <- P.optional pExponent
+  P.pure
+    MkScientific
+      { scientificIntegralDigits
+      , scientificFloatingDigits
+      , scientificExponent
+      , scientificPositive
+      }
+
+pFraction :: P.Parser P.Consuming Char Error (NE.NonEmpty Digit)
+pFraction = P.do
+  P.match '.'
+  P.some pDigit
+
+pExponent :: P.Parser P.Consuming Char Error Integer
+pExponent = P.do
+  P.void $ P.oneOf ['e', 'E']
+  positive <-
+    ( P.do
+        P.token P.>>= \case
+          '-' -> P.pure False
+          '+' -> P.pure True
+          _ -> P.throw $ P.ErrorCustom ""
+      )
+      `P.catch` \_err -> P.pure True
+  let chooseSign :: Integer -> Integer
+      chooseSign =
+        if positive
+          then id
+          else negate
+  digits <- reverse P.<$> (NE.toList P.<$> P.some pDigit)
+  let digitToInteger :: Digit -> Integer
+      digitToInteger = \case
+        MkDigit0 -> 0
+        MkDigit1 -> 1
+        MkDigit2 -> 2
+        MkDigit3 -> 3
+        MkDigit4 -> 4
+        MkDigit5 -> 5
+        MkDigit6 -> 6
+        MkDigit7 -> 7
+        MkDigit8 -> 8
+        MkDigit9 -> 9
+      digitsToInteger :: [Digit] -> Integer
+      digitsToInteger = \case
+        [] -> 0
+        x : xs -> digitToInteger x + 10 * digitsToInteger xs
+  P.pure $ chooseSign $ digitsToInteger digits
+
+pDigit :: P.Parser P.Consuming Char Error Digit
+pDigit =
+  P.token P.>>= \case
+    '0' -> P.pure MkDigit0
+    '1' -> P.pure MkDigit1
+    '2' -> P.pure MkDigit2
+    '3' -> P.pure MkDigit3
+    '4' -> P.pure MkDigit4
+    '5' -> P.pure MkDigit5
+    '6' -> P.pure MkDigit6
+    '7' -> P.pure MkDigit7
+    '8' -> P.pure MkDigit8
+    '9' -> P.pure MkDigit9
+    _ -> jsonError "Digit"
 
 pBoolean :: P.Parser P.Consuming Char Error Bool
 pBoolean = ((pFalse P.>> P.pure False) P.<|> (pTrue P.>> P.pure True)) P.<|> jsonError "Boolean"
