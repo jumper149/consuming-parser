@@ -306,6 +306,3 @@ pString = P.do
 
 pWhitespace :: P.Parser P.Unknown Char Error ()
 pWhitespace = P.void $ P.many $ P.oneOf ['\x0020', '\x000A', '\x000D', '\x0009']
-
-f :: P.Parser P.Unknown Char Error ()
-f = P.void $ P.many $ P.oneOf ['\x0020', '\x000A', '\x000D', '\x0009']
