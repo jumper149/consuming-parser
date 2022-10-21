@@ -6,15 +6,9 @@
       repo = "nixpkgs";
       ref = "nixpkgs-unstable";
     };
-    incremental = {
-      type = "github";
-      owner = "jumper149";
-      repo = "consuming-parser";
-      ref = "incremental";
-    };
   };
 
-  outputs = { self, nixpkgs, incremental }: {
+  outputs = { self, nixpkgs }: {
 
     overlays.default = final: prev: {
       haskellPackages = prev.haskell.packages.ghc924.extend (haskellFinal: haskellPrev: { # TODO: Using GHC 9.2.4.
@@ -28,7 +22,7 @@
 
     packages.x86_64-linux.incremental =
       with import nixpkgs { system = "x86_64-linux"; overlays = [ self.overlays.default ]; };
-      let previousOutput = null; # incremental.packages.x86_64-linux.incremental;
+      let previousOutput = null; # incremental.packages.x86_64-linux.incremental.out;
       in
       (pkgs.haskell.lib.overrideCabal self.packages.x86_64-linux.default
         (drv: {
