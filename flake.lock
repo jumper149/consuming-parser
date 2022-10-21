@@ -1,6 +1,41 @@
 {
   "nodes": {
+    "incremental": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1666366270,
+        "narHash": "sha256-+eWz8+3UMWQ5mBJ8Ti7618aLUX0aRXyWLqWU+1+78YA=",
+        "owner": "jumper149",
+        "repo": "consuming-parser",
+        "rev": "3074a31b2cbd619afc58af5dd4fec078892b507f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "jumper149",
+        "ref": "incremental",
+        "repo": "consuming-parser",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
+      "locked": {
+        "lastModified": 1663578619,
+        "narHash": "sha256-kNgJXZIr4pi2NbDUfjj4APa+LlCmRUM4Ly2Xf70PVaw=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "a13d59408da1108fc6c9ffe4750ab7a33c581d24",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
       "locked": {
         "lastModified": 1663578619,
         "narHash": "sha256-kNgJXZIr4pi2NbDUfjj4APa+LlCmRUM4Ly2Xf70PVaw=",
@@ -18,7 +53,8 @@
     },
     "root": {
       "inputs": {
-        "nixpkgs": "nixpkgs"
+        "incremental": "incremental",
+        "nixpkgs": "nixpkgs_2"
       }
     }
   },
