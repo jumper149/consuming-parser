@@ -29,26 +29,28 @@
 
     packages.x86_64-linux.incremental =
       with import nixpkgs { system = "x86_64-linux"; overlays = [ self.overlays.default ]; };
-      let previousOutput = incremental.packages.x86_64-linux.incremental.incremental;
-      in
-      (pkgs.haskell.lib.overrideCabal self.packages.x86_64-linux.default
-        (drv: {
-          preBuild = pkgs.lib.optionalString (previousOutput != null) ''
-            mkdir -p dist/build
-            tar xzf ${previousOutput}/dist.tar.gz -C dist/build
-          '';
-          postInstall = ''
-            mkdir $incremental
-            tar czf $incremental/dist.tar.gz -C dist/build --mtime='1970-01-01T00:00:00Z' .
-          '';
-          preFixup = ''
-            # Don't try to strip incremental build outputs
-            outputs=(${"\\" + "\${"}outputs[@]/incremental})
-          '';
-        })
-      ).overrideAttrs (finalAttrs: previousAttrs: {
-        outputs = previousAttrs.outputs ++ ["incremental"];
-      });
+      let
+        previousIncrement = incremental.packages.x86_64-linux.incremental.incremental;
+        nextIncrement =
+          (pkgs.haskell.lib.overrideCabal self.packages.x86_64-linux.default
+            (drv: {
+              preBuild = pkgs.lib.optionalString (previousIncrement != null) ''
+                mkdir -p dist/build
+                tar xzf ${previousIncrement}/dist.tar.gz -C dist/build
+              '';
+              postInstall = ''
+                mkdir $incremental
+                tar czf $incremental/dist.tar.gz -C dist/build --mtime='1970-01-01T00:00:00Z' .
+              '';
+              preFixup = ''
+                # Don't try to strip incremental build outputs
+                outputs=(${"\\" + "\${"}outputs[@]/incremental})
+              '';
+            })
+          ).overrideAttrs (finalAttrs: previousAttrs: {
+            outputs = previousAttrs.outputs ++ ["incremental"];
+          });
+      in nextIncrement;
 
     devShells.x86_64-linux.default =
       with import nixpkgs { system = "x86_64-linux"; overlays = [ self.overlays.default ]; };
