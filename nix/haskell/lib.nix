@@ -1,4 +1,8 @@
 { lib, haskellLib }: {
+
+  /* Build a cabal package quickly by supplying a previous build of the
+     same package.
+  */
   cabal2Increment =
     { regularPackage, previousIncrement ? null }:
       (haskellLib.overrideCabal regularPackage
@@ -19,4 +23,5 @@
       ).overrideAttrs (finalAttrs: previousAttrs: {
         outputs = previousAttrs.outputs ++ ["incremental"];
       });
+
 }
