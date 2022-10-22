@@ -10,11 +10,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1666442180,
-        "narHash": "sha256-iBFeGZG+dhlQrB0gB6jjluU+dTnBF+J3ULh9yEEvbXU=",
+        "lastModified": 1666442292,
+        "narHash": "sha256-Kdr3DcrVrq3IvJ5SKaaGOA6pwkwmmqY/JZ0PAS5m/jE=",
         "owner": "jumper149",
         "repo": "consuming-parser",
-        "rev": "e167a9efbe1a648115a152b7f6cf27c40088c240",
+        "rev": "d1f6fc607b5c636b68892afb7362ad3b6715a4c5",
         "type": "github"
       },
       "original": {
