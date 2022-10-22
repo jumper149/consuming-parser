@@ -13,7 +13,8 @@
           '';
           postInstall = ''
             mkdir $incremental
-            tar czf $incremental/dist.tar.gz -C dist/build --mtime='1970-01-01T00:00:00Z' .
+            tar czf $incremental/dist.tar.gz -C dist/build \
+              --mtime='1970-01-01T00:00:00Z' .
           '';
           preFixup = ''
             # Don't try to strip incremental build outputs
