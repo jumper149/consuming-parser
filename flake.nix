@@ -30,7 +30,7 @@
     packages.x86_64-linux.incremental =
       with import nixpkgs { system = "x86_64-linux"; overlays = [ self.overlays.default ]; };
       with import ./nix/haskell/lib.nix { lib = pkgs.lib; haskellLib = pkgs.haskell.lib; };
-      cabal2increment {
+      buildIncrementally {
         regularPackage = self.packages.x86_64-linux.default;
         previousIncrement = incremental.packages.x86_64-linux.incremental;
       };

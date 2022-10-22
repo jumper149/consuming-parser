@@ -3,7 +3,7 @@
   /* Build a cabal package quickly by supplying a previous build of the
      same package.
   */
-  cabal2increment =
+  buildIncrementally =
     { regularPackage, previousIncrement ? null }:
       (haskellLib.overrideCabal regularPackage
         (drv: {
