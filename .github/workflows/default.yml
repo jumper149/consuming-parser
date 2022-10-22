@@ -22,3 +22,13 @@ jobs:
       uses: cachix/install-nix-action@v17
     - name: "Check"
       run: nix flake check --keep-going --print-build-logs
+  incremental:
+    name: "Incremental"
+    runs-on: ubuntu-latest
+    steps:
+    - name: "Set up GitHub Actions"
+      uses: actions/checkout@v3.0.2
+    - name: "Set up nix"
+      uses: cachix/install-nix-action@v17
+    - name: "Build"
+      run: nix build ".#packages.x86_64-linux.incremental" --print-build-logs
