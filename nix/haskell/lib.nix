@@ -7,9 +7,9 @@
     { regularPackage, previousIncrement ? null }:
       (haskellLib.overrideCabal regularPackage
         (drv: {
-          preBuild = lib.optionalString (previousIncrement != null) ''
+          preBuild = lib.optionalString (previousIncrement.incremental != null) ''
             mkdir -p dist/build
-            tar xzf ${previousIncrement}/dist.tar.gz -C dist/build
+            tar xzf ${previousIncrement.incremental}/dist.tar.gz -C dist/build
           '';
           postInstall = ''
             mkdir $incremental

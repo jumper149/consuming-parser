@@ -32,7 +32,7 @@
       with import ./nix/haskell/lib.nix { lib = pkgs.lib; haskellLib = pkgs.haskell.lib; };
       cabal2increment {
         regularPackage = self.packages.x86_64-linux.default;
-        previousIncrement = incremental.packages.x86_64-linux.incremental.incremental;
+        previousIncrement = incremental.packages.x86_64-linux.incremental;
       };
 
     devShells.x86_64-linux.default =
