@@ -2,16 +2,19 @@
   "nodes": {
     "incremental": {
       "inputs": {
+        "incremental": [
+          "incremental"
+        ],
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1666371371,
-        "narHash": "sha256-mj+KC4QX2etsIZPtt/zQoC6tbISZHvEK/8yKgRG5aaA=",
+        "lastModified": 1666442180,
+        "narHash": "sha256-iBFeGZG+dhlQrB0gB6jjluU+dTnBF+J3ULh9yEEvbXU=",
         "owner": "jumper149",
         "repo": "consuming-parser",
-        "rev": "00025639a321776f99838bc633d95570c218e4b4",
+        "rev": "e167a9efbe1a648115a152b7f6cf27c40088c240",
         "type": "github"
       },
       "original": {
