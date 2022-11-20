@@ -34,7 +34,7 @@ type ParserT ::
   (Type -> Type) -> -- m
   Type -> -- a
   Type
-newtype ParserT c t e m a = ParserT {unParserT :: ComposeT (T.StateT (State t)) (T.ExceptT (Trace e)) m a}
+newtype ParserT c t e m a = MkParserT {unParserT :: ComposeT (T.StateT (State t)) (T.ExceptT (Trace e)) m a}
 
 parseT :: ParserT c t e m a -> [t] -> m (Prelude.Either (Trace e) (a, State t))
 parseT parser tokens = runComposeT (`T.runStateT` state) T.runExceptT (unParserT parser)
@@ -57,44 +57,44 @@ parse parser tokens = Control.Monad.Identity.runIdentity (parseT parser tokens)
 
 token :: Prelude.Monad m => ParserT Consuming t e m t
 token = do
-  state <- ParserT @Consuming C.get
+  state <- MkParserT @Consuming C.get
   case stateTokens state of
     [] -> throw ErrorInputEmpty
     t : ts -> do
-      _ <- ParserT @Unknown (C.put MkState {stateTokens = ts, statePosition = Successor (statePosition state)})
+      _ <- MkParserT @Unknown (C.put MkState {stateTokens = ts, statePosition = Successor (statePosition state)})
       pure t
 
 end :: Prelude.Monad m => ParserT Unknown t e m ()
 end = do
-  state <- ParserT @Unknown C.get
+  state <- MkParserT @Unknown C.get
   case stateTokens state of
     [] -> pure ()
     _rest -> throw ErrorInputLeft
 
 lift :: Prelude.Monad m => m a -> ParserT c t e m a
-lift = ParserT Prelude.. C.lift
+lift = MkParserT Prelude.. C.lift
 
 -- | '(<$>)' can be expressed using '(>>=)' and 'pure', but then it would enforce the constraint @'Prelude.Monad' m@
 (<$>) :: Prelude.Functor m => (a -> b) -> ParserT c t e m a -> ParserT c t e m b
-f <$> ParserT x = ParserT (f Prelude.<$> x)
+f <$> MkParserT x = MkParserT (f Prelude.<$> x)
 
 pure :: Prelude.Monad m => a -> ParserT Unknown t e m a
-pure = ParserT Prelude.. Prelude.pure
+pure = MkParserT Prelude.. Prelude.pure
 
 (>>=) :: Prelude.Monad m => ParserT c1 t e m a -> (a -> ParserT c2 t e m b) -> ParserT (c1 || c2) t e m b
-x >>= f = ParserT (unParserT x Prelude.>>= unParserT Prelude.. f)
+x >>= f = MkParserT (unParserT x Prelude.>>= unParserT Prelude.. f)
 
 (<|>) :: Prelude.Monad m => ParserT c1 t e m a -> ParserT c2 t e m a -> ParserT (c1 && c2) t e m a
-ParserT (ComposeT x) <|> ParserT (ComposeT y) = ParserT (ComposeT (descend ((Control.Applicative.<|>) (Ascend x) (Ascend y))))
+MkParserT (ComposeT x) <|> MkParserT (ComposeT y) = MkParserT (ComposeT (descend ((Control.Applicative.<|>) (Ascend x) (Ascend y))))
 
 throw :: Prelude.Monad m => Error e -> ParserT c t e m a
-throw err = ParserT (C.gets statePosition Prelude.>>= \index -> C.throwError (TracePoint index err))
+throw err = MkParserT (C.gets statePosition Prelude.>>= \index -> C.throwError (TracePoint index err))
 
 catch :: Prelude.Monad m => ParserT c1 t e m a -> (Trace e -> ParserT c2 t e m a) -> ParserT (c1 && c2) t e m a
-catch throwing catching = ParserT (C.catchError (unParserT throwing) (unParserT Prelude.. catching))
+catch throwing catching = MkParserT (C.catchError (unParserT throwing) (unParserT Prelude.. catching))
 
 forget :: ParserT c t e m a -> ParserT Unknown t e m a
-forget = ParserT Prelude.. unParserT
+forget = MkParserT Prelude.. unParserT
 
 -- ** Convenient functions
 
