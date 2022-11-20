@@ -25,6 +25,9 @@ library
     Parser.Token.Char
     Parser.TypeError
   other-modules:
+    Data.Natural
+    Data.Natural.Confined
+    Data.Natural.Finite
     Parser.Example.Json
     Parser.Example.Parens
   build-depends:
